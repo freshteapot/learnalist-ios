@@ -1,0 +1,11 @@
+.DS_Store
+/.build
+/Packages
+/*.xcodeproj
+
+learnalist-ios/Carthage
+learnalist-ios/Cartfile.resolved
+
+# Xcode things.
+learnalist-ios/learnalist-ios.xcodeproj/project.xcworkspace/xcuserdata/freshteapot.xcuserdatad/UserInterfaceState.xcuserstate
+learnalist-ios/learnalist-ios.xcodeproj/xcuserdata/freshteapot.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
