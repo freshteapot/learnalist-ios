@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>lal.username</key>
+	<string></string>
+	<key>lal.password</key>
+	<string></string>
+	<key>lal.server</key>
+	<string>https://learnalist.net/api</string>
+	<key>lal.connection.confirmed</key>
+	<false/>
+</dict>
+</plist>
