@@ -137,6 +137,7 @@
 		EB385D041E302CCC00C92927 /* learnalist-ios */ = {
 			isa = PBXGroup;
 			children = (
+				EB6E0B921E3BB27400328D01 /* notinuse */,
 				EB617CE01E3ABA39000869BA /* alist */,
 				EB7EE0871E316C6900A4F612 /* settings */,
 				EB385D051E302CCC00C92927 /* AppDelegate.swift */,
@@ -145,8 +146,6 @@
 				EB385D0E1E302CCC00C92927 /* LaunchScreen.storyboard */,
 				EB385D111E302CCC00C92927 /* Info.plist */,
 				EB7EE08A1E316D5100A4F612 /* ListsController.swift */,
-				EB7EE08E1E3176F200A4F612 /* SettingsController.swift */,
-				EB7EE0901E317E3500A4F612 /* ListViewController.swift */,
 				EB6DEDD81E34DBEA00A3A573 /* model.swift */,
 				EB58963F1E3AA192006BF01B /* SplashViewController.swift */,
 				EB617CDE1E3AAB1C000869BA /* BottomToolbarController.swift */,
@@ -194,6 +193,15 @@
 				EB617CE31E3ABBED000869BA /* LastListViewController.swift */,
 			);
 			name = alist;
+			sourceTree = "<group>";
+		};
+		EB6E0B921E3BB27400328D01 /* notinuse */ = {
+			isa = PBXGroup;
+			children = (
+				EB7EE08E1E3176F200A4F612 /* SettingsController.swift */,
+				EB7EE0901E317E3500A4F612 /* ListViewController.swift */,
+			);
+			name = notinuse;
 			sourceTree = "<group>";
 		};
 		EB7EE0871E316C6900A4F612 /* settings */ = {
