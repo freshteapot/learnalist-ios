@@ -165,29 +165,11 @@ class SettingsController: UIViewController, UITextFieldDelegate {
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
-        if var value = textField.text {
-            if (value.isEmpty) {
-                if (usernameField == textField) {
-                    value = userNamePlaceholder
-                } else if (passwordField == textField) {
-                    value = passwordPlaceholder
-                }
-                textField.textColor = UIColor.lightGray
-            } else {
-                if (usernameField == textField) {
-                    settingsInfo.username = value
-                } else if (passwordField == textField) {
-                    settingsInfo.password = value
-                }
-            }
-        }
+
         
     }
 
     func saveButtonTapped() {
-        view.endEditing(true)
-        print("Settings Save button tapped")
         delegate?.settingsController(nameVC: self, didSaveName: settingsInfo)
-        
     }
 }
