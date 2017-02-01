@@ -1,52 +1,33 @@
-//
-//  model.swift
-//  learnalist-ios
-//
-//  Created by Chris Williams on 22/01/2017.
-//  Copyright © 2017 freshteapot. All rights reserved.
-//
 
-import Foundation
 import SQLite
 import SwiftyJSON
 
-struct SettingsInfo {
-    var username: String
-    var password: String
-    func toString() -> String {
-        let json = JSON([
-            "username": username,
-            "password": password
-            ])
-        return json.rawString()!
-    }
-}
 
-
-class Model {
+class LearnalistModel {
     var db: Connection!
     var dbPath: String!
 
     init() {
-        getDb()
+        // We are only setting everything up, so no need to care for the response.
+        _ = getDb()
     }
 
     private func getPath() -> String {
         let path = NSSearchPathForDirectoriesInDomains(
             .documentDirectory, .userDomainMask, true
             ).first!
-        
+
         let _dbPath = "\(path)/db.sqlite3"
         return _dbPath
     }
-    
+
     private func getDb() -> Connection {
         if db != nil {
             print("Returning db already opened.")
             return db
         }
 
-        
+
         dbPath = getPath()
         let fileManger = FileManager.default
         let dbExists = fileManger.fileExists(atPath: dbPath);
@@ -71,7 +52,7 @@ class Model {
 
     func reset() {
         let fileManger = FileManager.default
-        
+
         do {
             try fileManger.removeItem(atPath: dbPath)
         } catch {
@@ -81,15 +62,15 @@ class Model {
 
     func setup() {
         print("Setup db.")
-        
+
         let query = "create table settings (username CHARACTER(36) not null primary key, data text);"
         do {
             try db.execute(query)
-            
+
             var stmt = try db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'")
             var schema = try stmt.scalar() as! String
             print(schema)
-            
+
             stmt = try db.prepare("SELECT sql FROM sqlite_master WHERE name='settings';")
             schema = try stmt.scalar() as! String
             print(schema)
@@ -97,10 +78,9 @@ class Model {
         } catch{
             print("error: \(error).")
         }
-        
     }
-    
-    
+
+
     func saveSettings(settings: SettingsInfo) {
         let userDefaults = UserDefaults.standard
         userDefaults.set(settings.username, forKey: "lal.username")
@@ -109,23 +89,23 @@ class Model {
         print("Saving settings to the db.")
         print(settings.toString())
         /*
-        
-        do {
-            let stmt = try db.prepare("INSERT OR REPLACE INTO settings (username, data) VALUES ((SELECT username FROM settings WHERE username = ?), ?)")
-            let username = settings.username
-            let data = settings.toString()
-            try stmt.run(username, data)
-        } catch {
-            print("Failed to save: \(error)")
-            if case SQLite.Result.error(let message, let code, _) = error {
-                print(code)
-                print(message)
-                if code == SQLITE_CONSTRAINT {
-                    print("Unique shit")
-                }
-                
-            }
-        }
+
+         do {
+         let stmt = try db.prepare("INSERT OR REPLACE INTO settings (username, data) VALUES ((SELECT username FROM settings WHERE username = ?), ?)")
+         let username = settings.username
+         let data = settings.toString()
+         try stmt.run(username, data)
+         } catch {
+         print("Failed to save: \(error)")
+         if case SQLite.Result.error(let message, let code, _) = error {
+         print(code)
+         print(message)
+         if code == SQLITE_CONSTRAINT {
+         print("Unique shit")
+         }
+
+         }
+         }
          */
     }
 
@@ -137,9 +117,11 @@ class Model {
         username  = userDefaults.string(forKey: "lal.username")!
         password  = userDefaults.string(forKey: "lal.password")!
         server  = userDefaults.string(forKey: "lal.server")!
-        print(server)
-        
-        let settingsInfo = SettingsInfo(username:username, password: password)
+
+        let settingsInfo = SettingsInfo(
+            username:username,
+            password: password,
+            server: server)
         return settingsInfo
     }
 }
