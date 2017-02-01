@@ -19,6 +19,7 @@ class SettingsView: UIView {
 
     private let buttonSaveText = "Click to save settings"
     private let buttonTestAccess = "Click to test connection."
+    private let buttonTestingAccess = "Testing connection..."
     private let buttonEditText = "Add Username and password to access api."
 
     let usernameField = UITextField()
@@ -153,19 +154,21 @@ class SettingsView: UIView {
 
     func testConnection() {
         // @todo create a simple api to test connection
-        let url = settings.server + "/api/alist/by/me"
+        let url = settings.server + "/alist/by/me"
         let user = settings.username
         let password = settings.password
 
+        self.button.setTitle(self.buttonTestingAccess, for: UIControlState.normal)
         self.button.isEnabled = false
         Alamofire.request(url, method: .get)
             .authenticate(user: user, password: password)
             .responseJSON { response in
                 if response.response?.statusCode == 200 {
                     self.button.setTitle(self.buttonSaveText, for: UIControlState.normal)
+                } else {
+                    self.button.setTitle(self.buttonTestAccess, for: UIControlState.normal)
                 }
                 self.button.isEnabled = true
         }
-
     }
 }
