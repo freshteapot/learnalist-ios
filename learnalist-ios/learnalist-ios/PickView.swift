@@ -41,7 +41,7 @@ class PickView: UIView, UITableViewDataSource, UITableViewDelegate {
             make.edges.equalToSuperview()
         }
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -62,22 +62,5 @@ class PickView: UIView, UITableViewDataSource, UITableViewDelegate {
         selectedIndexPath = indexPath
         tableView.deselectRow(at: indexPath as IndexPath, animated: false)
         onTap.fire(listType)
-    }
-
-
-    func onAdd() {
-        print("onAdd: do nothing")
-    }
-
-    func onSplash() {
-        print("onSplash: change to splash")
-        //let vc = UIApplication.getSplash()
-        //self.navigationController?.setViewControllers([vc], animated: false)
-    }
-
-    func onLastList() {
-        print("onLastList")
-        //let vc = UIApplication.getLastList()
-        //self.navigationController?.setViewControllers([vc], animated: false)
     }
 }
