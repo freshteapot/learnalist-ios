@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  learnalist-ios
 //
-//  Created by Chris Williams on 19/01/2017.
+//  Created by Chris Williams on 29/01/2017.
 //  Copyright © 2017 freshteapot. All rights reserved.
 //
 
@@ -12,39 +12,19 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    let bottomView = BottomToolBarController()
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        
-        let prefs = Bundle.main.path(forResource: "Settings", ofType: "plist")
-        let dict = NSDictionary(contentsOfFile: prefs!)
-        let userDefaults = UserDefaults.standard
-        
-        //userDefaults.set(dict, forKey: "defaults")                // without this code doesn't work
-        userDefaults.register(defaults: dict as! [String : Any])
-        
-        
         // Override point for customization after application launch.
-        window = UIWindow(frame: UIScreen.main.bounds)
-        window?.backgroundColor = UIColor.black
-        
-        // Check which window to show
-        var model = Model()
-        let settings:SettingsInfo = model.getSettings()
+            // Override point for customization after application launch.
+            window = UIWindow(frame: UIScreen.main.bounds)
+            window?.backgroundColor = UIColor.black
+        firstRun()
 
-        let vc = settings.username.isEmpty ? UIApplication.getSettings() : UIApplication.getSplash()
-        
-        let navigationVC = UINavigationController(rootViewController: vc)
-        window?.rootViewController = navigationVC
-        window?.makeKeyAndVisible()
-        
-        
-        window?.addSubview(bottomView)
+        let model = LearnalistModel()
 
-        bottomView.snp.makeConstraints { (make) -> Void in
-            make.left.right.bottom.equalTo(0)
-            make.height.equalTo((window?.snp.height)!).multipliedBy(0.1)
-        }
-
+        let vc = MainViewController(model:model)
+            window?.rootViewController = vc
+            window?.makeKeyAndVisible()
         return true
     }
 
@@ -70,48 +50,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
+    func firstRun() {
+
+        let prefs = Bundle.main.path(forResource: "Settings", ofType: "plist")
+        let dict = NSDictionary(contentsOfFile: prefs!)
+        let userDefaults = UserDefaults.standard
+
+        //userDefaults.set(dict, forKey: "defaults")                // without this code doesn't work
+        userDefaults.register(defaults: dict as! [String : Any])
+    }
 }
-
-
-
 
 extension UIApplication {
-    class func topViewController(base: UIViewController? = UIApplication.shared.keyWindow?.rootViewController) -> UIViewController? {
-        if let nav = base as? UINavigationController {
-            return topViewController(base: nav.visibleViewController)
-        }
-        if let tab = base as? UITabBarController {
-            if let selected = tab.selectedViewController {
-                return topViewController(base: selected)
-            }
-        }
-        if let presented = base?.presentedViewController {
-            return topViewController(base: presented)
-        }
-        return base
-    }
-    
-    
-    class func getSettings() -> UIViewController {
-        let model = Model()
-        let settings:SettingsInfo = model.getSettings()
-        let vc = SettingsViewController(info:settings)
-        return vc;
-    }
-    
-    class func getSplash() -> UIViewController {
-        let vc = SplashViewController()
-        return vc;
-    }
-    
-    class func getNewList() -> UIViewController {
-        let vc = AlistNewViewController()
-        return vc;
-    }
-    
-    class func getLastList() -> UIViewController {
-        let vc = LastListViewController()
-        return vc;
+    class func getModel() -> LearnalistModel {
+        let window = UIApplication.shared.keyWindow!
+        let vc = window.rootViewController as! MainViewController
+        return vc.getModel()
     }
 }
-
