@@ -14,7 +14,7 @@ import SwiftyJSON
 class SettingsView: UIView {
 
     let onTap = Signal<String>()
-    var settingsInfo:SettingsInfo!
+    var settings:SettingsInfo!
     var button:UIButton!
 
     private let buttonSaveText = "Click to save settings"
@@ -31,13 +31,13 @@ class SettingsView: UIView {
     override init (frame : CGRect) {
         super.init(frame : frame)
         let model = UIApplication.getModel()
-        settingsInfo = model.getSettings()
+        settings = model.getSettings()
 
         self.backgroundColor = UIColor.red
 
         button = UIButton()
         button.backgroundColor = UIColor.gray
-        if (!settingsInfo.username.isEmpty && !settingsInfo.password.isEmpty) {
+        if (!settings.username.isEmpty && !settings.password.isEmpty) {
             button.setTitle(buttonTestAccess, for: UIControlState.normal)
         } else {
             button.setTitle(buttonEditText, for: UIControlState.normal)
@@ -53,27 +53,27 @@ class SettingsView: UIView {
 
         button.onTouchDown.subscribe(on: self) {
             if self.button.currentTitle == self.buttonTestAccess {
-                print("Test connection \(self.settingsInfo)")
+                print("Test connection \(self.settings)")
                 self.testConnection()
             }
 
             if self.button.currentTitle == self.buttonSaveText {
-                model.saveSettings(settings: self.settingsInfo)
+                model.saveSettings(settings: self.settings)
                 self.onTap.fire("Done")
             }
         }
 
         usernameField.backgroundColor = UIColor.lightGray
         usernameField.textAlignment = NSTextAlignment.center
-        if (!settingsInfo.username.isEmpty) {
-            usernameField.text = settingsInfo.username
+        if (!settings.username.isEmpty) {
+            usernameField.text = settings.username
         } else {
             usernameField.text = userNamePlaceholder
             usernameField.textColor = UIColor.lightGray
         }
         addSubview(usernameField)
 
-        if (!settingsInfo.username.isEmpty) {
+        if (!settings.username.isEmpty) {
             passwordField.text = passwordHideTextHolder
         } else {
             passwordField.text = passwordPlaceholder
@@ -118,7 +118,7 @@ class SettingsView: UIView {
             self.save(textField: self.passwordField)
         }
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -142,21 +142,20 @@ class SettingsView: UIView {
             value = value.trimmingCharacters(in: .whitespacesAndNewlines)
 
             if (usernameField == textField) {
-                settingsInfo.username = value
+                settings.username = value
             } else if (passwordField == textField) {
                 textField.text = passwordHideTextHolder
-                settingsInfo.password = value
+                settings.password = value
             }
             button.setTitle(buttonTestAccess, for: UIControlState.normal)
         }
     }
 
     func testConnection() {
-        //view.addSubview(container)
         // @todo create a simple api to test connection
-        let url = "https://learnalist.net/api/alist/by/me"
-        let user = settingsInfo.username
-        let password = settingsInfo.password
+        let url = settings.server + "/api/alist/by/me"
+        let user = settings.username
+        let password = settings.password
 
         self.button.isEnabled = false
         Alamofire.request(url, method: .get)

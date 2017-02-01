@@ -44,13 +44,4 @@ class SettingsViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
     }
-
-    func cancelButtonTapped() {
-        view.endEditing(true)
-        print("Settings Cancel button tapped")
-
-        self.dismiss(animated: true, completion: nil)
-        //self.navigationController?.popViewController(animated: false)
-    }
-
 }

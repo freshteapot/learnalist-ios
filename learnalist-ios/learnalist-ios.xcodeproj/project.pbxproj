@@ -21,7 +21,6 @@
 		EB2164E91E3E35FC00BF64BC /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2164E81E3E35FC00BF64BC /* SettingsViewController.swift */; };
 		EB2164EB1E3E547500BF64BC /* SettingsNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2164EA1E3E547500BF64BC /* SettingsNavigationController.swift */; };
 		EB2164ED1E3E559C00BF64BC /* Signals.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB2164EC1E3E559C00BF64BC /* Signals.framework */; };
-		EB2164EF1E3E560700BF64BC /* Settings2ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2164EE1E3E560700BF64BC /* Settings2ViewController.swift */; };
 		EB69ADE61E42748C008C3160 /* AddEditNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB69ADE51E42748C008C3160 /* AddEditNavigationController.swift */; };
 		EB69ADE91E4274C9008C3160 /* LearnalistModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB69ADE81E4274C9008C3160 /* LearnalistModel.swift */; };
 		EB6BA7DD1E3E5AA200F96D70 /* TabLastListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB6BA7DC1E3E5AA200F96D70 /* TabLastListViewController.swift */; };
@@ -86,7 +85,6 @@
 		EB2164E81E3E35FC00BF64BC /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		EB2164EA1E3E547500BF64BC /* SettingsNavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsNavigationController.swift; sourceTree = "<group>"; };
 		EB2164EC1E3E559C00BF64BC /* Signals.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Signals.framework; path = Carthage/Build/iOS/Signals.framework; sourceTree = "<group>"; };
-		EB2164EE1E3E560700BF64BC /* Settings2ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Settings2ViewController.swift; sourceTree = "<group>"; };
 		EB69ADE51E42748C008C3160 /* AddEditNavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddEditNavigationController.swift; sourceTree = "<group>"; };
 		EB69ADE81E4274C9008C3160 /* LearnalistModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LearnalistModel.swift; sourceTree = "<group>"; };
 		EB6BA7DC1E3E5AA200F96D70 /* TabLastListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabLastListViewController.swift; sourceTree = "<group>"; };
@@ -188,7 +186,6 @@
 				EB2164AB1E3E297D00BF64BC /* Info.plist */,
 				EBB246A71E4286F900330F6A /* Settings.plist */,
 			);
-			name = "learnalist-ios";
 			path = "learnalist-ios";
 			sourceTree = "<group>";
 		};
@@ -249,7 +246,6 @@
 			children = (
 				EB2164E81E3E35FC00BF64BC /* SettingsViewController.swift */,
 				EB2164EA1E3E547500BF64BC /* SettingsNavigationController.swift */,
-				EB2164EE1E3E560700BF64BC /* Settings2ViewController.swift */,
 			);
 			name = views;
 			sourceTree = "<group>";
@@ -486,7 +482,6 @@
 				EB87F47A1E41395B006A2E3B /* V1AddEditListItemViewController.swift in Sources */,
 				EBB246A61E4281DF00330F6A /* SettingsView.swift in Sources */,
 				EB87F4801E414EE7006A2E3B /* V2EditListView.swift in Sources */,
-				EB2164EF1E3E560700BF64BC /* Settings2ViewController.swift in Sources */,
 				EB1E7E931E429A2000A59086 /* MyListView.swift in Sources */,
 				EBB246AA1E428F7100330F6A /* LearnalistApi.swift in Sources */,
 				EB2164A01E3E297D00BF64BC /* AppDelegate.swift in Sources */,

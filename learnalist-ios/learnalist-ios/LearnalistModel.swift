@@ -8,7 +8,8 @@ class LearnalistModel {
     var dbPath: String!
 
     init() {
-        getDb()
+        // We are only setting everything up, so no need to care for the response.
+        _ = getDb()
     }
 
     private func getPath() -> String {
@@ -116,9 +117,11 @@ class LearnalistModel {
         username  = userDefaults.string(forKey: "lal.username")!
         password  = userDefaults.string(forKey: "lal.password")!
         server  = userDefaults.string(forKey: "lal.server")!
-        print(server)
 
-        let settingsInfo = SettingsInfo(username:username, password: password)
+        let settingsInfo = SettingsInfo(
+            username:username,
+            password: password,
+            server: server)
         return settingsInfo
     }
 }

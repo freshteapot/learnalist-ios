@@ -21,12 +21,12 @@ class LearnalistApi {
     }
 
     func setSettings(settings:SettingsInfo) {
-        self.baseUrl = "https://learnalist.net/api/"
+        self.baseUrl = settings.server
         self.settings = settings
     }
 
     func getMyLists() {
-        let url = self.baseUrl + "alist/by/me"
+        let url = self.baseUrl + "/alist/by/me"
 
         let user = self.settings.username
         let password = self.settings.password
