@@ -165,11 +165,44 @@ class LearnalistModel {
                     for (_, aList):(String, JSON) in json {
                         let apiClean = LearnalistApi(settings: self.getSettings())
                         apiClean.deleteList(aList["uuid"].string!)
+                        //@todo Remove from the db
                     }
                 }
             }
         }
         api.getMyLists()
+    }
+
+    func getMyLists() -> [AlistSummary] {
+        var items = [AlistSummary]()
+        do {
+            // This has no context of lists that are not mine.
+            let stmt = try db.prepare("SELECT uuid, list_type, body FROM alist_kv")
+            for row in try stmt.run() {
+                let uuid = row[0] as! String
+                let listType = row[1] as! String
+                let body = row[2] as! String
+                if let dataFromString = body.data(using: .utf8, allowLossyConversion: false) {
+
+                    let json = JSON(data: dataFromString)
+                    let listTypeFromBody = json["info"]["type"].string!
+                    let uuidFromBody = json["uuid"].string!
+                    let title = json["info"]["title"].string!
+
+                    assert(uuid == uuidFromBody, "Uuid do not match in row with uuid: \(uuid)")
+                    assert(listType == listTypeFromBody, "Type do not match in row with type: \(listType)")
+
+                    items.append(AlistSummary(
+                        uuid: uuid,
+                        listType: listType,
+                        title: title
+                    ))
+                }
+            }
+        } catch {
+            print("Doh")
+        }
+        return items
     }
 
     // Might need to think this thru a little

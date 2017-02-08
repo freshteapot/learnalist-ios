@@ -29,6 +29,33 @@ func JSONStringify(_ json: JSON, pretty:Bool) -> String {
     return jsonString
 }
 
+struct AlistSummary: Decodable {
+    var title: String
+    var listType: String
+    var uuid: String
+
+    init(uuid: String, listType: String, title: String) {
+        self.title = title
+        self.listType = listType
+        self.uuid = uuid
+    }
+
+    init?(json: JSON) {
+        self.uuid = ("uuid" <~~ json)!
+        self.listType = ("type" <~~ json)!
+        self.title = ("title" <~~ json)!
+    }
+
+    func toJSON() -> JSON? {
+        return jsonify([
+            "uuid" ~~> self.uuid,
+            "type" ~~> self.listType,
+            "title" ~~> self.title,
+            ])
+    }
+
+}
+
 struct AlistInfo: Decodable {
     var title: String
     var listType: String

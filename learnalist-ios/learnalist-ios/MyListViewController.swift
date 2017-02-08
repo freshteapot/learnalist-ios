@@ -1,7 +1,3 @@
-//  Created by Chris Williams on 29/01/2017.
-//  Copyright © 2017 freshteapot. All rights reserved.
-//
-
 import Foundation
 import UIKit
 import SwiftyJSON
@@ -9,6 +5,7 @@ import Dollar
 
 class MyListViewController: UIViewController {
     var settings:SettingsInfo!
+    var myListView:MyListView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,7 +31,7 @@ class MyListViewController: UIViewController {
             make.right.equalTo(view).offset(-20)
         }
 
-        let myListView = MyListView(frame: CGRect.zero)
+        myListView = MyListView(frame: CGRect.zero)
         view.addSubview(myListView)
 
         myListView.snp.makeConstraints{(make) -> Void in
@@ -44,33 +41,7 @@ class MyListViewController: UIViewController {
             make.height.equalTo(view.snp.height).multipliedBy(0.8)
         }
 
-        // This should get replaced, so we only read from database.
-        let api = LearnalistApi(settings: settings)
-        api.onResponse.subscribe(on: self) { response in
-            if response.response?.statusCode == 200 {
-                if let jsonObject = response.result.value {
-                    let json = JSON(jsonObject)
-
-                    var items = [String]()
-                    for (_, aList):(String, JSON) in json {
-                        // Check to see if it is in the database?
-                        if aList["info"]["type"].string! == "v1" {
-                            if let test = AlistV1(json: JSONParseToDictionary(text: aList.rawString()!)!) {
-                                items.append(test.info.title)
-                                _ = JSONStringify(test.toJSON()!, pretty:true)
-                            }
-                        } else if aList["info"]["type"].string! == "v2" {
-                            if let test = AlistV2(json: JSONParseToDictionary(text: aList.rawString()!)!) {
-                                items.append(test.info.title)
-                                _ = JSONStringify(test.toJSON()!, pretty:true)
-                            }
-                        }
-                    }
-                    myListView.setItems(items: items)
-                }
-            }
-        }
-        api.getMyLists()
+        getMyListFromLocal()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -85,5 +56,49 @@ class MyListViewController: UIViewController {
     func toSettings() {
         let vc = SettingsNavigationController()
         self.navigationController?.present(vc, animated: false,completion: nil)
+    }
+
+    private func getMyListFromServer() {
+        // This should get replaced, so we only read from database.
+        let api = LearnalistApi(settings: settings)
+        api.onResponse.subscribe(on: self) { response in
+            if response.response?.statusCode == 200 {
+                if let jsonObject = response.result.value {
+                    let json = JSON(jsonObject)
+
+                    var items = [AlistSummary]()
+                    for (_, aList):(String, JSON) in json {
+                        // Check to see if it is in the database?
+                        if aList["info"]["type"].string! == "v1" {
+                            if let test = AlistV1(json: JSONParseToDictionary(text: aList.rawString()!)!) {
+                                items.append(AlistSummary(
+                                    uuid: test.uuid,
+                                    listType: test.info.listType,
+                                    title: test.info.title
+                                ))
+                                _ = JSONStringify(test.toJSON()!, pretty:true)
+                            }
+                        } else if aList["info"]["type"].string! == "v2" {
+                            if let test = AlistV2(json: JSONParseToDictionary(text: aList.rawString()!)!) {
+                                items.append(AlistSummary(
+                                    uuid: test.uuid,
+                                    listType: test.info.listType,
+                                    title: test.info.title
+                                ))
+                                _ = JSONStringify(test.toJSON()!, pretty:true)
+                            }
+                        }
+                    }
+                    self.myListView.setItems(items: items)
+                }
+            }
+        }
+        api.getMyLists()
+    }
+
+    private func getMyListFromLocal() {
+        let model = UIApplication.getModel()
+        let items = model.getMyLists()
+        self.myListView.setItems(items: items)
     }
 }

@@ -1,11 +1,3 @@
-//
-//  AppDelegate.swift
-//  learnalist-ios
-//
-//  Created by Chris Williams on 29/01/2017.
-//  Copyright © 2017 freshteapot. All rights reserved.
-//
-
 import UIKit
 
 @UIApplicationMain
@@ -26,7 +18,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         firstRun()
 
         let model = LearnalistModel()
-
         let vc = MainViewController(model:model)
             window?.rootViewController = vc
             window?.makeKeyAndVisible()

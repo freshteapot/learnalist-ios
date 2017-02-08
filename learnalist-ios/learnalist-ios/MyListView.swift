@@ -5,7 +5,7 @@ class MyListView: UIView, UITableViewDataSource, UITableViewDelegate {
 
     var tableView: UITableView!
     var selectedIndexPath: IndexPath?
-    var items = [String]()
+    var items = [AlistSummary]()
 
     override init (frame : CGRect) {
         super.init(frame : frame)
@@ -43,7 +43,7 @@ class MyListView: UIView, UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NameCell")! as UITableViewCell
-        cell.textLabel?.text = items[indexPath.row]
+        cell.textLabel?.text = items[indexPath.row].title
         return cell
     }
 
@@ -53,7 +53,7 @@ class MyListView: UIView, UITableViewDataSource, UITableViewDelegate {
         tableView.deselectRow(at: indexPath as IndexPath, animated: false)
     }
 
-    func setItems(items: [String]) {
+    func setItems(items: [AlistSummary]) {
         self.items = items
         tableView.reloadData()
     }
