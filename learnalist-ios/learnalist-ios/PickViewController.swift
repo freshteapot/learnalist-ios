@@ -40,7 +40,7 @@ class PickViewController: UIViewController {
 
         pickView.onTap.subscribe(on: self) { (listType) in
             print("Goto list type: \(listType)")
-            let vc = AddEditNavigationController(listType: listType)
+            let vc = AddEditNavigationController(listType: listType, editType: "new")
             self.navigationController?.present(vc, animated: false,completion: nil)
         }
 

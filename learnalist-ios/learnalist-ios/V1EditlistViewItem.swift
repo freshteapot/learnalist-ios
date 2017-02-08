@@ -16,7 +16,7 @@ class V1EditListViewItem : UIView {
     private var cleanedItem:String = ""
     private var button:UIButton = UIButton()
 
-    private let buttonSaveText = "Click to save to list"
+    private let buttonSaveText = "Click to add to list"
     private let buttonEditText = "Add or Edit item"
 
     override init (frame : CGRect) {

@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		EB1E7E931E429A2000A59086 /* MyListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB1E7E921E429A2000A59086 /* MyListView.swift */; };
+		EB1FFEA91E47BDE400AF27FB /* LearnalistModelAlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB1FFEA81E47BDE400AF27FB /* LearnalistModelAlist.swift */; };
+		EB1FFEAB1E47C9E800AF27FB /* Gloss.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1FFEAA1E47C9E800AF27FB /* Gloss.framework */; };
+		EB1FFEAD1E47EC8400AF27FB /* LearnalistSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB1FFEAC1E47EC8400AF27FB /* LearnalistSync.swift */; };
 		EB2164A01E3E297D00BF64BC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB21649F1E3E297D00BF64BC /* AppDelegate.swift */; };
 		EB2164A21E3E297D00BF64BC /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2164A11E3E297D00BF64BC /* MainViewController.swift */; };
 		EB2164A71E3E297D00BF64BC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB2164A61E3E297D00BF64BC /* Assets.xcassets */; };
@@ -64,6 +67,9 @@
 
 /* Begin PBXFileReference section */
 		EB1E7E921E429A2000A59086 /* MyListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyListView.swift; sourceTree = "<group>"; };
+		EB1FFEA81E47BDE400AF27FB /* LearnalistModelAlist.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LearnalistModelAlist.swift; sourceTree = "<group>"; };
+		EB1FFEAA1E47C9E800AF27FB /* Gloss.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Gloss.framework; path = Carthage/Build/iOS/Gloss.framework; sourceTree = "<group>"; };
+		EB1FFEAC1E47EC8400AF27FB /* LearnalistSync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LearnalistSync.swift; sourceTree = "<group>"; };
 		EB21649C1E3E297D00BF64BC /* learnalist-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "learnalist-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB21649F1E3E297D00BF64BC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EB2164A11E3E297D00BF64BC /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
@@ -114,6 +120,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB1FFEAB1E47C9E800AF27FB /* Gloss.framework in Frameworks */,
 				EB2164ED1E3E559C00BF64BC /* Signals.framework in Frameworks */,
 				EB2164E41E3E335100BF64BC /* SnapKit.framework in Frameworks */,
 				EBB2469E1E4276C000330F6A /* Alamofire.framework in Frameworks */,
@@ -220,6 +227,7 @@
 		EB2164DC1E3E321C00BF64BC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				EB1FFEAA1E47C9E800AF27FB /* Gloss.framework */,
 				EBB2469A1E4276C000330F6A /* Alamofire.framework */,
 				EBB2469B1E4276C000330F6A /* Dollar.framework */,
 				EBB2469C1E4276C000330F6A /* SQLite.framework */,
@@ -255,6 +263,8 @@
 			children = (
 				EB69ADE81E4274C9008C3160 /* LearnalistModel.swift */,
 				EBB246A91E428F7100330F6A /* LearnalistApi.swift */,
+				EB1FFEA81E47BDE400AF27FB /* LearnalistModelAlist.swift */,
+				EB1FFEAC1E47EC8400AF27FB /* LearnalistSync.swift */,
 			);
 			name = models;
 			sourceTree = "<group>";
@@ -457,6 +467,7 @@
 				"$(SRCROOT)/Carthage/Build/iOS/SwiftyJSON.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/Alamofire.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/Dollar.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/Gloss.framework",
 			);
 			outputPaths = (
 			);
@@ -482,7 +493,9 @@
 				EB87F47A1E41395B006A2E3B /* V1AddEditListItemViewController.swift in Sources */,
 				EBB246A61E4281DF00330F6A /* SettingsView.swift in Sources */,
 				EB87F4801E414EE7006A2E3B /* V2EditListView.swift in Sources */,
+				EB1FFEAD1E47EC8400AF27FB /* LearnalistSync.swift in Sources */,
 				EB1E7E931E429A2000A59086 /* MyListView.swift in Sources */,
+				EB1FFEA91E47BDE400AF27FB /* LearnalistModelAlist.swift in Sources */,
 				EBB246AA1E428F7100330F6A /* LearnalistApi.swift in Sources */,
 				EB2164A01E3E297D00BF64BC /* AppDelegate.swift in Sources */,
 				EB2164EB1E3E547500BF64BC /* SettingsNavigationController.swift in Sources */,

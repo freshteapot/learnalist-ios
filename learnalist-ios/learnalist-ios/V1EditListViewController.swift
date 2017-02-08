@@ -9,6 +9,9 @@
 import UIKit
 
 class V1EditListViewController: UIViewController {
+    var listView:V1EditListView!
+    var items = [String]()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.edgesForExtendedLayout = []
@@ -16,17 +19,41 @@ class V1EditListViewController: UIViewController {
 
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: addEditNavigationController, action: #selector (AddEditNavigationController.cancelList))
 
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .plain, target: addEditNavigationController, action: #selector (AddEditNavigationController.toAdd))
+        self.navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(title: "Add", style: .plain, target: addEditNavigationController, action: #selector (AddEditNavigationController.toAdd)),
+            UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector (onSave) )
+        ]
+
 
         view.backgroundColor = UIColor.white
+        listView = V1EditListView(frame: CGRect.zero)
+        listView.items = self.items
+        view.addSubview(listView)
 
-        let editView = V1EditListView(frame: CGRect.zero)
-        view.addSubview(editView)
-
-        editView.snp.makeConstraints{(make) -> Void in
-            make.height.equalTo(view.snp.height).multipliedBy(0.8)
-            make.top.left.equalTo(view).offset(20)
+        listView.snp.makeConstraints{(make) -> Void in
+            make.top.equalTo(view).offset(20)
+            make.left.equalTo(view).offset(20)
             make.right.equalTo(view).offset(-20)
+            make.bottom.equalTo(view).offset(-20)
         }
+    }
+
+    func onSave() {
+        print("Save List to database or server.")
+        let info = AlistInfo(title: "I am a title", listType: "v1", from: LearnalistModel.getUUID())
+        let aList = AlistV1(uuid: info.from!, info: info, data: listView.items)
+
+        UIApplication.getModel().saveList(aList)
+
+        (self.navigationController as! AddEditNavigationController).afterListSave()
+    }
+
+    func onSaveItem(data: String) {
+        self.items.append(data)
+        // This is required because we trigger add/edit to open before it has chance to load.
+        if listView != nil {
+            listView.setItems(items: items)
+        }
+        self.navigationController?.popViewController(animated: false)
     }
 }

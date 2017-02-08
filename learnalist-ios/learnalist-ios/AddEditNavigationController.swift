@@ -10,10 +10,12 @@ import UIKit
 
 class AddEditNavigationController: UINavigationController, UINavigationControllerDelegate {
     var listType:String = "v0"
+    var editType:String = "new"
 
-    init(listType: String) {
+    init(listType: String, editType: String) {
         super.init(nibName: nil, bundle: nil)
         self.listType = listType
+        self.editType = editType
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -26,13 +28,18 @@ class AddEditNavigationController: UINavigationController, UINavigationControlle
         self.delegate = self
 
         if listType == "v1" {
-            let vc = V1AddEditListItemViewController()
+            let vc = V1EditListViewController()
             self.setViewControllers([vc], animated: false)
         } else if listType == "v2" {
             let vc = V2AddEditListItemViewController()
             self.setViewControllers([vc], animated: false)
         } else {
             print("@Todo")
+            return
+        }
+
+        if self.editType == "new" {
+            self.toAdd()
         }
     }
 
@@ -66,14 +73,17 @@ class AddEditNavigationController: UINavigationController, UINavigationControlle
         self.dismiss(animated: false, completion: nil)
     }
 
+    func afterListSave() {
+        print("After List Save from AddEditNaviationController.")
+        self.dismiss(animated: false, completion: nil)
+    }
+
     func toList() {
         print("To List from AddEditNaviationController.")
         if listType == "v1" {
-            let vc = V1EditListViewController()
-            self.setViewControllers([vc], animated: false)
+            self.popViewController(animated: false)
         } else if listType == "v2" {
-            let vc = V2EditListViewController()
-            self.setViewControllers([vc], animated: false)
+            self.popViewController(animated: false)
         } else {
             print("@Todo")
         }
@@ -83,10 +93,11 @@ class AddEditNavigationController: UINavigationController, UINavigationControlle
         print("To Add from AddEditNaviationController.")
         if listType == "v1" {
             let vc = V1AddEditListItemViewController()
-            self.setViewControllers([vc], animated: false)
+            vc.onSave.subscribe(on: self, callback: (self.topViewController as! V1EditListViewController).onSaveItem)
+            self.pushViewController(vc, animated: false)
         } else if listType == "v2" {
             let vc = V2AddEditListItemViewController()
-            self.setViewControllers([vc], animated: false)
+            self.pushViewController(vc, animated: false)
         } else {
             print("@Todo")
         }

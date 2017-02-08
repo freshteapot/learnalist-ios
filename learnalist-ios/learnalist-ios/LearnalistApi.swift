@@ -34,7 +34,55 @@ class LearnalistApi {
         Alamofire.request(url, method: .get)
             .authenticate(user: user, password: password)
             .responseJSON { response in
-                print(response)
+                self.onResponse.fire(response)
+        }
+    }
+
+    func deleteList(_ uuid: String) {
+
+        let url = self.baseUrl + "/alist/\(uuid)"
+
+        let user = self.settings.username
+        let password = self.settings.password
+
+        Alamofire.request(url, method: .delete)
+            .authenticate(user: user, password: password)
+            .responseJSON { response in
+                self.onResponse.fire(response)
+        }
+    }
+
+
+    func postList(listType: String, body: String) {
+
+        let url = self.baseUrl + "/alist"
+
+        let user = self.settings.username
+        let password = self.settings.password
+        let parameters = JSONParseToDictionary(text: body)
+
+        Alamofire.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default)
+            .authenticate(user: user, password: password)
+            .responseJSON { response in
+                self.onResponse.fire(response)
+        }
+    }
+
+    func putList(uuid: String, listType: String, body: String) {
+        if uuid.isEmpty {
+            print ("This is not allowed")
+            return
+        }
+
+        let url = self.baseUrl + "/alist/\(uuid)"
+
+        let user = self.settings.username
+        let password = self.settings.password
+        let parameters = JSONParseToDictionary(text: body)
+
+        Alamofire.request(url, method: .put, parameters: parameters, encoding: JSONEncoding.default)
+            .authenticate(user: user, password: password)
+            .responseJSON { response in
                 self.onResponse.fire(response)
         }
     }

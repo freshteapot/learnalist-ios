@@ -44,16 +44,27 @@ class MyListViewController: UIViewController {
             make.height.equalTo(view.snp.height).multipliedBy(0.8)
         }
 
-
+        // This should get replaced, so we only read from database.
         let api = LearnalistApi(settings: settings)
         api.onResponse.subscribe(on: self) { response in
             if response.response?.statusCode == 200 {
                 if let jsonObject = response.result.value {
                     let json = JSON(jsonObject)
+
                     var items = [String]()
                     for (_, aList):(String, JSON) in json {
                         // Check to see if it is in the database?
-                        items.append(aList["info"]["title"].string!)
+                        if aList["info"]["type"].string! == "v1" {
+                            if let test = AlistV1(json: JSONParseToDictionary(text: aList.rawString()!)!) {
+                                items.append(test.info.title)
+                                _ = JSONStringify(test.toJSON()!, pretty:true)
+                            }
+                        } else if aList["info"]["type"].string! == "v2" {
+                            if let test = AlistV2(json: JSONParseToDictionary(text: aList.rawString()!)!) {
+                                items.append(test.info.title)
+                                _ = JSONStringify(test.toJSON()!, pretty:true)
+                            }
+                        }
                     }
                     myListView.setItems(items: items)
                 }

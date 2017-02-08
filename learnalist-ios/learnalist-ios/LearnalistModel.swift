@@ -63,20 +63,65 @@ class LearnalistModel {
     func setup() {
         print("Setup db.")
 
-        let query = "create table settings (username CHARACTER(36) not null primary key, data text);"
-        do {
-            try db.execute(query)
+        func setupTable(name: String, sql: String) {
+            do {
+                try db.execute(sql)
 
-            var stmt = try db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'")
-            var schema = try stmt.scalar() as! String
-            print(schema)
+                var stmt = try db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'")
+                var schema = try stmt.scalar() as! String
+                print(schema)
 
-            stmt = try db.prepare("SELECT sql FROM sqlite_master WHERE name='settings';")
-            schema = try stmt.scalar() as! String
-            print(schema)
+                stmt = try db.prepare("SELECT sql FROM sqlite_master WHERE name=?;")
+                schema = try stmt.scalar(name) as! String
+                print(schema)
+            } catch{
+                // print("error: \(error).")
+            }
+        }
 
-        } catch{
-            print("error: \(error).")
+        setupTable(
+            name: "settings",
+            sql: "create table settings (username CHARACTER(36) not null primary key, data text);"
+        )
+
+        setupTable(
+            name: "alist_kv",
+            sql: "create table alist_kv (uuid CHARACTER(36)  not null primary key, list_type CHARACTER(3), body text, user_uuid CHARACTER(36));"
+        )
+
+        func setupSettingsTable() {
+            let query = "create table settings (username CHARACTER(36) not null primary key, data text);"
+            do {
+                try db.execute(query)
+
+                var stmt = try db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'")
+                var schema = try stmt.scalar() as! String
+                print(schema)
+
+                stmt = try db.prepare("SELECT sql FROM sqlite_master WHERE name='settings';")
+                schema = try stmt.scalar() as! String
+                print(schema)
+            } catch{
+                // print("error: \(error).")
+            }
+        }
+
+        func setupListTable() {
+
+            let query = "create table alist_kv (uuid CHARACTER(36)  not null primary key, list_type CHARACTER(3), body text, user_uuid CHARACTER(36));"
+            do {
+                try db.execute(query)
+
+                var stmt = try db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'")
+                var schema = try stmt.scalar() as! String
+                print(schema)
+
+                stmt = try db.prepare("SELECT sql FROM sqlite_master WHERE name='alist_kv';")
+                schema = try stmt.scalar() as! String
+                print(schema)
+            } catch {
+                // print("error: \(error).")
+            }
         }
     }
 
@@ -85,28 +130,11 @@ class LearnalistModel {
         let userDefaults = UserDefaults.standard
         userDefaults.set(settings.username, forKey: "lal.username")
         userDefaults.set(settings.password, forKey: "lal.password")
+    }
 
-        print("Saving settings to the db.")
-        print(settings.toString())
-        /*
-
-         do {
-         let stmt = try db.prepare("INSERT OR REPLACE INTO settings (username, data) VALUES ((SELECT username FROM settings WHERE username = ?), ?)")
-         let username = settings.username
-         let data = settings.toString()
-         try stmt.run(username, data)
-         } catch {
-         print("Failed to save: \(error)")
-         if case SQLite.Result.error(let message, let code, _) = error {
-         print(code)
-         print(message)
-         if code == SQLITE_CONSTRAINT {
-         print("Unique shit")
-         }
-
-         }
-         }
-         */
+    static func getUUID() -> String {
+        let uuid = UUID().uuidString.lowercased()
+        return uuid
     }
 
     func getSettings() -> SettingsInfo {
@@ -123,6 +151,124 @@ class LearnalistModel {
             password: password,
             server: server)
         return settingsInfo
+    }
+
+    // Delete all lists for the logged in user.
+    func deleteAllLists() {
+        let api = LearnalistApi(settings: self.getSettings())
+
+        api.onResponse.subscribe(on: self) { response in
+            if response.response?.statusCode == 200 {
+                if let jsonObject = response.result.value {
+                    let json = JSON(jsonObject)
+
+                    for (_, aList):(String, JSON) in json {
+                        let apiClean = LearnalistApi(settings: self.getSettings())
+                        apiClean.deleteList(aList["uuid"].string!)
+                    }
+                }
+            }
+        }
+        api.getMyLists()
+    }
+
+    // Might need to think this thru a little
+    func saveList(_ aList: AlistV1) {
+        self.saveList(uuid: aList.uuid, info: aList.info, body: JSONStringify(aList.toJSON()!, pretty:false))
+    }
+
+    func saveList(_ aList: AlistV2) {
+        self.saveList(uuid: aList.uuid, info: aList.info, body: JSONStringify(aList.toJSON()!, pretty:false))
+    }
+
+
+    private func saveList(uuid: String, info: AlistInfo, body: String) {
+        let api = LearnalistApi(settings: getSettings())
+
+        if (info.from != nil) {
+            // Write to the local database first
+            self.insertAlist(uuid: info.from!, listType: info.listType, body: body)
+            // Send to the server
+            api.postList(listType: info.listType, body: body)
+            api.onResponse.subscribe(on: self) { response in
+                if response.response?.statusCode == 200 {
+                    // Update the local database with the uuid from the server.
+                    if let jsonObject = response.result.value {
+                        let json = JSON(jsonObject)
+                        let uuid = json["uuid"].string!
+                        let from = json["info"]["from"].string
+                        let listType = json["info"]["type"].string!
+                        self.updateList(uuid:uuid, from:from, listType:listType, body:json.rawString(options:JSONSerialization.WritingOptions())!)
+                    }
+                }
+            }
+            return
+        }
+        // This is an update where the uuid we are using is in sync with the server.
+        self.updateList(uuid:uuid, from: nil, listType:info.listType, body:body)
+        api.putList(uuid: uuid,listType: info.listType, body: body)
+        api.onResponse.subscribe(on: self) { response in
+            if response.response?.statusCode != 200 {
+                // @todo warn sync?
+                print("Failed to update the server for some reason.")
+                return
+            }
+            print("List has been updated.")
+        }
+    }
+
+    func updateList(uuid: String, from: String?, listType: String, body: String) {
+        if from != nil {
+            // This is most likely coming via the server as we are swapping "local" uuid for "remote" uuid.
+            do {
+                let stmt = try db.prepare("UPDATE alist_kv SET uuid=?, list_type=?, body=? WHERE uuid=?")
+                try stmt.run(uuid, listType, body, from)
+            } catch {
+                print("Failed to save: \(error)")
+                if case SQLite.Result.error(let message, let code, _) = error {
+                    print(code)
+                    print(message)
+                    if code == SQLITE_CONSTRAINT {
+                        print("Unique shit")
+                    }
+                }
+            }
+        } else {
+            do {
+                let stmt = try db.prepare("UPDATE alist_kv SET list_type=?, body=? WHERE uuid=?")
+                try stmt.run(listType, body, uuid)
+            } catch {
+                print("Failed to save: \(error)")
+                if case SQLite.Result.error(let message, let code, _) = error {
+                    print(code)
+                    print(message)
+                    if code == SQLITE_CONSTRAINT {
+                        print("Unique shit")
+                    }
+                }
+            }
+        }
+    }
+
+    func insertAlist(uuid: String, listType: String, body: String) {
+        if listType == "v1" {
+            do {
+                print("Saving to database")
+                let stmt = try db.prepare("INSERT INTO alist_kv(uuid, list_type, body) values(?,?,?)")
+                try stmt.run(uuid, listType, body)
+            } catch {
+                print("Failed to save: \(error)")
+                if case SQLite.Result.error(let message, let code, _) = error {
+                    print(code)
+                    print(message)
+                    if code == SQLITE_CONSTRAINT {
+                        print("Unique shit")
+                    }
+                }
+            }
+        } else {
+            print("@todo insert listType \(listType)")
+        }
     }
 }
 

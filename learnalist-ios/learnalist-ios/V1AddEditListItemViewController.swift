@@ -7,8 +7,12 @@
 //
 
 import UIKit
+import Signals
+
 
 class V1AddEditListItemViewController: UIViewController {
+    let onSave = Signal<String>()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.edgesForExtendedLayout = []
@@ -28,10 +32,10 @@ class V1AddEditListItemViewController: UIViewController {
         }
 
 
-        editView.onTap.subscribe(on: self) { (item) in
-            print("Save item: \(item)")
-            print("Save, then render new table")
-            addEditNavigationController?.toList()
-        }
+        editView.onTap.subscribe(on: self, callback: self.onEditSave)
+    }
+
+    func onEditSave(data: String) {
+        self.onSave.fire(data)
     }
 }
