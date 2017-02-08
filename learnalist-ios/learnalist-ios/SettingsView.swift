@@ -69,16 +69,14 @@ class SettingsView: UIView {
         if (!settings.username.isEmpty) {
             usernameField.text = settings.username
         } else {
-            usernameField.text = userNamePlaceholder
-            usernameField.textColor = UIColor.lightGray
+            usernameField.placeholder = userNamePlaceholder
         }
         addSubview(usernameField)
 
         if (!settings.username.isEmpty) {
             passwordField.text = passwordHideTextHolder
         } else {
-            passwordField.text = passwordPlaceholder
-            passwordField.textColor = UIColor.lightGray
+            passwordField.placeholder = passwordPlaceholder
         }
         passwordField.backgroundColor = UIColor.lightGray
         passwordField.textAlignment = NSTextAlignment.center
@@ -133,11 +131,10 @@ class SettingsView: UIView {
         if var value = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines) {
             if (value.isEmpty) {
                 if (usernameField == textField) {
-                    textField.text = userNamePlaceholder
+                    textField.placeholder = userNamePlaceholder
                 } else if (passwordField == textField) {
-                    textField.text = passwordPlaceholder
+                    textField.placeholder = passwordPlaceholder
                 }
-                textField.textColor = UIColor.lightGray
             }
 
             value = value.trimmingCharacters(in: .whitespacesAndNewlines)
