@@ -1,16 +1,17 @@
-//
-//  V1EditListViewController.swift
-//  learnalist-ios
-//
-//  Created by Chris Williams on 31/01/2017.
-//  Copyright © 2017 freshteapot. All rights reserved.
-//
-
 import UIKit
 
 class V1EditListViewController: UIViewController {
     var listView:V1EditListView!
-    var items = [String]()
+    var aList:AlistV1!
+
+    init(aList: AlistV1) {
+        super.init(nibName: nil, bundle: nil)
+        self.aList = aList
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,10 +25,9 @@ class V1EditListViewController: UIViewController {
             UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector (onSave) )
         ]
 
-
         view.backgroundColor = UIColor.white
-        listView = V1EditListView(frame: CGRect.zero)
-        listView.items = self.items
+        listView = V1EditListView(frame: CGRect.zero, aList: self.aList)
+        listView.onTitleAction.subscribe(on: self, callback: self.onTitleAction)
         view.addSubview(listView)
 
         listView.snp.makeConstraints{(make) -> Void in
@@ -40,20 +40,30 @@ class V1EditListViewController: UIViewController {
 
     func onSave() {
         print("Save List to database or server.")
-        let info = AlistInfo(title: "I am a title", listType: "v1", from: LearnalistModel.getUUID())
-        let aList = AlistV1(uuid: info.from!, info: info, data: listView.items)
-
-        UIApplication.getModel().saveList(aList)
+        UIApplication.getModel().saveList(self.aList)
 
         (self.navigationController as! AddEditNavigationController).afterListSave()
     }
 
     func onSaveItem(data: String) {
-        self.items.append(data)
+        self.aList.data.append(data)
         // This is required because we trigger add/edit to open before it has chance to load.
         if listView != nil {
-            listView.setItems(items: items)
+            listView.triggerListUpdate.fire(self.aList)
         }
         self.navigationController?.popViewController(animated: false)
+    }
+
+    func onSaveInfo(data: AlistInfo) {
+        self.aList.info = data
+        listView.triggerListUpdate.fire(self.aList)
+        self.navigationController?.popViewController(animated: false)
+    }
+
+    func onTitleAction(data: String) {
+        if data == "open" {
+            (self.navigationController as! AddEditNavigationController).toInfo(info: self.aList.info)
+            return
+        }
     }
 }

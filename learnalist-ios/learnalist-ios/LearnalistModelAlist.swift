@@ -1,5 +1,4 @@
 import Foundation
-
 import Gloss
 
 func JSONParseToDictionary(text: String) -> [String: Any]? {
@@ -60,6 +59,20 @@ struct AlistV1: Decodable {
     var uuid: String
     var info: AlistInfo
     var data: [String]
+
+    static func NewList(_ uuid: String) -> AlistV1 {
+        // By default, we set both uuid and info.from to be the same uuid.
+        return AlistV1(
+            uuid: uuid,
+            info: AlistInfo(
+                title:"I am a title",
+                listType:"v1",
+                from: uuid
+            ),
+            data: [String]()
+        )
+    }
+
     init(uuid: String, info: AlistInfo, data: [String]) {
         self.uuid = uuid
         self.info = info

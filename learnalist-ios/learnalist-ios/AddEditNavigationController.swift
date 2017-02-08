@@ -1,11 +1,3 @@
-//
-//  AddEditNavigationController.swift
-//  learnalist-ios
-//
-//  Created by Chris Williams on 31/01/2017.
-//  Copyright © 2017 freshteapot. All rights reserved.
-//
-
 import UIKit
 
 class AddEditNavigationController: UINavigationController, UINavigationControllerDelegate {
@@ -27,8 +19,11 @@ class AddEditNavigationController: UINavigationController, UINavigationControlle
         self.edgesForExtendedLayout = []
         self.delegate = self
 
+
         if listType == "v1" {
-            let vc = V1EditListViewController()
+            let vc = V1EditListViewController(
+                aList: AlistV1.NewList(LearnalistModel.getUUID())
+            )
             self.setViewControllers([vc], animated: false)
         } else if listType == "v2" {
             let vc = V2AddEditListItemViewController()
@@ -89,8 +84,20 @@ class AddEditNavigationController: UINavigationController, UINavigationControlle
         }
     }
 
+    func toInfo(info: AlistInfo) {
+        let vc = EditListInfoViewController(info: info)
+        if listType == "v1" {
+            vc.onSave.subscribe(on: self, callback: (self.topViewController as! V1EditListViewController).onSaveInfo)
+        } else if listType == "v2" {
+            // vc.onSave.subscribe(on: self, callback: (self.topViewController as! V2EditListViewController).onSaveInfo)
+        } else {
+            print("@Todo")
+        }
+
+        self.pushViewController(vc, animated: false)
+    }
+
     func toAdd() {
-        print("To Add from AddEditNaviationController.")
         if listType == "v1" {
             let vc = V1AddEditListItemViewController()
             vc.onSave.subscribe(on: self, callback: (self.topViewController as! V1EditListViewController).onSaveItem)

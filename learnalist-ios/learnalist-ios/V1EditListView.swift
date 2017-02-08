@@ -1,20 +1,18 @@
-//
-//  V1EditListView.swift
-//  learnalist-ios
-//
-//  Created by Chris Williams on 31/01/2017.
-//  Copyright © 2017 freshteapot. All rights reserved.
-//
-
 import UIKit
+import Signals
 
 class V1EditListView: UIView, UITableViewDataSource, UITableViewDelegate {
-    var items = [String]()
-    var tableView: UITableView!
+    let onTitleAction = Signal<String>()
+    let triggerListUpdate = Signal<AlistV1>()
 
-    override init (frame : CGRect) {
+    var aList:AlistV1!
+    var tableView: UITableView!
+    var titleButton: UIButton!
+
+    init(frame: CGRect, aList: AlistV1) {
         super.init(frame : frame)
-        backgroundColor = UIColor.yellow
+        self.aList = aList
+        self.triggerListUpdate.subscribe(on: self, callback: self.updateList)
 
         let button = UIButton()
         button.backgroundColor = UIColor.gray
@@ -27,9 +25,8 @@ class V1EditListView: UIView, UITableViewDataSource, UITableViewDelegate {
             make.right.equalTo(self)
         }
 
-        let titleButton = UIButton()
+        titleButton = UIButton()
         titleButton.backgroundColor = UIColor.gray
-        titleButton.setTitle("title:", for: UIControlState.normal)
         titleButton.contentHorizontalAlignment = .left
 
         addSubview(titleButton)
@@ -40,7 +37,9 @@ class V1EditListView: UIView, UITableViewDataSource, UITableViewDelegate {
             make.right.equalTo(self)
         }
 
-
+        titleButton.onTouchDown.subscribe(on: self) {
+            self.onTitleAction.fire("open")
+        }
 
         tableView = UITableView(frame: frame, style: .plain)
         tableView.dataSource = self
@@ -58,6 +57,8 @@ class V1EditListView: UIView, UITableViewDataSource, UITableViewDelegate {
             make.right.equalTo(self)
             make.bottom.equalTo(self)
         }
+
+        triggerListUpdate.fire(self.aList)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -65,12 +66,12 @@ class V1EditListView: UIView, UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count
+        return self.aList.data.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NameCell")! as UITableViewCell
-        cell.textLabel?.text = items[indexPath.row]
+        cell.textLabel?.text = self.aList.data[indexPath.row]
         return cell
     }
 
@@ -80,7 +81,14 @@ class V1EditListView: UIView, UITableViewDataSource, UITableViewDelegate {
     }
 
     func setItems(items: [String]) {
-        self.items = items
+        self.aList.data = items
         tableView.reloadData()
+    }
+
+    func updateList(data: AlistV1) {
+        self.aList = data
+        let text = "title: \(self.aList.info.title)"
+        titleButton.setTitle(text, for: UIControlState.normal)
+        setItems(items: self.aList.data)
     }
 }
