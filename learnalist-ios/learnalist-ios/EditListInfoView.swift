@@ -71,6 +71,7 @@ class EditListInfoView : UIView {
             return
         }
         self.info.title = cleaned
+        titleField.text = cleaned
         button.setTitle(buttonSaveText, for: UIControlState.normal)
     }
 

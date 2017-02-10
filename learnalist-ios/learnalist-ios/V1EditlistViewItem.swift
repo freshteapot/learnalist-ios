@@ -116,6 +116,7 @@ class V1EditListViewItem : UIView {
             return
         }
         cleanedItem = cleaned
+        itemField.text = cleaned
         saveButton.setTitle(buttonSaveText, for: UIControlState.normal)
     }
 }
