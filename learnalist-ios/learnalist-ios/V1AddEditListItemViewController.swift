@@ -11,7 +11,26 @@ import Signals
 
 
 class V1AddEditListItemViewController: UIViewController {
-    let onSave = Signal<String>()
+    let onSave = Signal<(index: Int, data: String)>()
+    let onDelete = Signal<Int>()
+
+    var index:Int = -1
+    var rowData:String = ""
+
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    init(index: Int, rowData: String) {
+        super.init(nibName: nil, bundle: nil)
+
+        self.index = index
+        self.rowData = rowData
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,20 +41,22 @@ class V1AddEditListItemViewController: UIViewController {
 
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "List", style: .plain, target: addEditNavigationController, action: #selector (AddEditNavigationController.toList))
 
-        let editView = V1EditListViewItem(frame: CGRect.zero)
+        let editView = V1EditListViewItem(frame: CGRect.zero, rowData: self.rowData)
+        editView.onSave.subscribe(on: self, callback: self.onSave)
+        editView.onDelete.subscribe(on: self, callback: self.onDelete)
         view.addSubview(editView)
 
         editView.snp.makeConstraints{(make) -> Void in
-            make.top.left.equalTo(view).offset(20)
-            make.right.equalTo(view).offset(-20)
-            make.height.equalTo(view.snp.height).multipliedBy(0.5)
+            make.edges.equalTo(view)
+            make.height.equalTo(view.snp.height)
         }
-
-
-        editView.onTap.subscribe(on: self, callback: self.onEditSave)
     }
 
-    func onEditSave(data: String) {
-        self.onSave.fire(data)
+    func onSave(data: String) {
+        self.onSave.fire((index: self.index, data: data))
+    }
+
+    func onDelete(data: Bool) {
+        self.onDelete.fire(self.index)
     }
 }

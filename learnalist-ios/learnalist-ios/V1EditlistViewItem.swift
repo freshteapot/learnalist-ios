@@ -11,57 +11,88 @@ import Signals
 
 class V1EditListViewItem : UIView {
 
-    let onTap = Signal<String>()
+    let onSave = Signal<String>()
+    let onDelete = Signal<Bool>()
 
+    private var enableDismissKeyboard = false
     private var cleanedItem:String = ""
-    private var button:UIButton = UIButton()
+    private var saveButton:UIButton!
+    private var itemField:UITextField!
 
-    private let buttonSaveText = "Click to add to list"
-    private let buttonEditText = "Add or Edit item"
+    private var buttonSaveText = "Click to add to list"
+    private var buttonEditText = "Add item"
 
-    override init (frame : CGRect) {
-        super.init(frame : frame)
+    init(frame: CGRect, rowData: String) {
+        super.init(frame: frame)
 
-        button = UIButton()
-        button.backgroundColor = UIColor.gray
-        button.setTitle(buttonEditText, for: UIControlState.normal)
+        if rowData != "" {
+            buttonEditText = "Edit item"
+            buttonSaveText = "Click to save changes"
+        }
 
-        addSubview(button)
+        saveButton = UIButton()
+        saveButton.backgroundColor = UIColor.gray
+        saveButton.setTitle(buttonEditText, for: UIControlState.normal)
+        addSubview(saveButton)
 
+        let deleteButton = UIButton()
+        deleteButton.backgroundColor = UIColor.red
+        deleteButton.setTitle("Delete Row", for: UIControlState.normal)
 
-        let itemField = UITextField()
+        if rowData == "" {
+            deleteButton.isHidden = true
+        }
+        deleteButton.onTouchDown.subscribe(on: self) {
+            self.onDelete.fire(true)
+        }
+
+        addSubview(deleteButton)
+
+        itemField = UITextField()
         itemField.backgroundColor = UIColor.lightGray
         itemField.textAlignment = NSTextAlignment.center
+        itemField.text = rowData
 
         addSubview(itemField)
 
-        button.snp.makeConstraints{(make) -> Void in
-            make.height.equalTo(self.snp.height).multipliedBy(0.2)
+        saveButton.snp.makeConstraints{(make) -> Void in
+            make.height.equalTo(self.snp.height).multipliedBy(0.1)
             make.top.equalTo(self).offset(10)
             make.left.equalTo(self).offset(20)
             make.right.equalTo(self).offset(-20)
         }
 
-        button.onTouchDown.subscribe(on: self) {
+        saveButton.onTouchDown.subscribe(on: self) {
+            if self.enableDismissKeyboard {
+                return
+            }
+
             if !self.cleanedItem.isEmpty {
-                self.onTap.fire(self.cleanedItem)
+                self.onSave.fire(self.cleanedItem)
             }
         }
 
-        itemField.snp.makeConstraints{(make) -> Void in
-            make.top.equalTo(button.snp.bottom).offset(30)
-            make.height.equalTo(self.snp.height).multipliedBy(0.3)
+        deleteButton.snp.makeConstraints{(make) -> Void in
+            make.bottom.equalTo(0).offset(-20)
+            make.height.equalTo(self.snp.height).multipliedBy(0.1)
             make.left.equalTo(self).offset(20)
             make.right.equalTo(self).offset(-20)
         }
 
-        itemField.onEditingDidEndOnExit.subscribe(on: self) {
-            self.save(item: itemField.text!)
+        itemField.snp.makeConstraints{(make) -> Void in
+            make.top.equalTo(saveButton.snp.bottom).offset(30)
+            make.height.equalTo(self.snp.height).multipliedBy(0.2)
+            make.left.equalTo(self).offset(20)
+            make.right.equalTo(self).offset(-20)
         }
 
+        itemField.onEditingDidBegin.subscribe(on: self) {
+            self.enableDismissKeyboard = true
+        }
 
-        itemField.onTouchUpOutside.subscribe(on: self) {
-            self.save(item: itemField.text!)
+        itemField.onEditingDidEndOnExit.subscribe(on: self) {
+            print("onEditingDidEndOnExit")
+            self.save(item: self.itemField.text!)
         }
     }
 
@@ -70,16 +101,20 @@ class V1EditListViewItem : UIView {
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.endEditing(true)
+        if self.enableDismissKeyboard {
+            self.endEditing(true)
+            self.save(item: itemField.text!)
+        }
     }
 
     func save(item: String) {
+        self.enableDismissKeyboard = false
         let cleaned = item.trimmingCharacters(in: .whitespacesAndNewlines)
         if cleaned == "" {
-            button.setTitle(buttonEditText, for: UIControlState.normal)
+            saveButton.setTitle(buttonEditText, for: UIControlState.normal)
             return
         }
         cleanedItem = cleaned
-        button.setTitle(buttonSaveText, for: UIControlState.normal)
+        saveButton.setTitle(buttonSaveText, for: UIControlState.normal)
     }
 }

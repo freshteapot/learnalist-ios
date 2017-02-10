@@ -28,6 +28,7 @@ class V1EditListViewController: UIViewController {
         view.backgroundColor = UIColor.white
         listView = V1EditListView(frame: CGRect.zero, aList: self.aList)
         listView.onTitleAction.subscribe(on: self, callback: self.onTitleAction)
+        listView.onRowTap.subscribe(on: self, callback: self.onRowTap)
         view.addSubview(listView)
 
         listView.snp.makeConstraints{(make) -> Void in
@@ -41,23 +42,33 @@ class V1EditListViewController: UIViewController {
     func onSave() {
         print("Save List to database or server.")
         UIApplication.getModel().saveList(self.aList)
-
         (self.navigationController as! AddEditNavigationController).afterListSave()
     }
 
-    func onSaveItem(data: String) {
-        self.aList.data.append(data)
+    func onDeleteItem(index: Int) {
+        self.aList.data.remove(at: index)
+        listView.setItems(items: self.aList.data)
+        self.navigationController!.popViewController(animated: false)
+    }
+
+    func onSaveItem(index: Int, data: String) {
+        if index == -1 {
+            self.aList.data.append(data)
+        } else {
+            self.aList.data[index] = data
+        }
+
         // This is required because we trigger add/edit to open before it has chance to load.
         if listView != nil {
             listView.triggerListUpdate.fire(self.aList)
         }
-        self.navigationController?.popViewController(animated: false)
+        self.navigationController!.popViewController(animated: false)
     }
 
     func onSaveInfo(data: AlistInfo) {
         self.aList.info = data
         listView.triggerListUpdate.fire(self.aList)
-        self.navigationController?.popViewController(animated: false)
+        self.navigationController!.popViewController(animated: false)
     }
 
     func onTitleAction(data: String) {
@@ -65,5 +76,12 @@ class V1EditListViewController: UIViewController {
             (self.navigationController as! AddEditNavigationController).toInfo(info: self.aList.info)
             return
         }
+    }
+
+    func onRowTap(index: Int) {
+        let vc = V1AddEditListItemViewController(index: index, rowData: self.aList.data[index])
+        vc.onSave.subscribe(on: self, callback: onSaveItem)
+        vc.onDelete.subscribe(on: self, callback: onDeleteItem)
+        self.navigationController!.pushViewController(vc, animated: false)
     }
 }

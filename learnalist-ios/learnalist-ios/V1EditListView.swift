@@ -4,6 +4,7 @@ import Signals
 class V1EditListView: UIView, UITableViewDataSource, UITableViewDelegate {
     let onTitleAction = Signal<String>()
     let triggerListUpdate = Signal<AlistV1>()
+    let onRowTap = Signal<Int>()
 
     var aList:AlistV1!
     var tableView: UITableView!
@@ -76,8 +77,8 @@ class V1EditListView: UIView, UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
-        print("do: Goto list view.")
         tableView.deselectRow(at: indexPath as IndexPath, animated: false)
+        self.onRowTap.fire(indexPath.row)
     }
 
     func setItems(items: [String]) {
