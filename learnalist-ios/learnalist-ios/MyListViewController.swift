@@ -32,6 +32,7 @@ class MyListViewController: UIViewController {
         }
 
         myListView = MyListView(frame: CGRect.zero)
+        myListView.onTapOnTableRow.subscribe(on: self, callback: self.toAddEditList)
         view.addSubview(myListView)
 
         myListView.snp.makeConstraints{(make) -> Void in
@@ -55,6 +56,11 @@ class MyListViewController: UIViewController {
 
     func toSettings() {
         let vc = SettingsNavigationController()
+        self.navigationController?.present(vc, animated: false,completion: nil)
+    }
+
+    func toAddEditList(uuid:String, listType:String) {
+        let vc = AddEditNavigationController(uuid: uuid, listType: listType)
         self.navigationController?.present(vc, animated: false,completion: nil)
     }
 

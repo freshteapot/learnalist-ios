@@ -3,11 +3,20 @@ import UIKit
 class AddEditNavigationController: UINavigationController, UINavigationControllerDelegate {
     var listType:String = "v0"
     var editType:String = "new"
+    var uuid:String!
+
+    init(uuid: String, listType: String) {
+        super.init(nibName: nil, bundle: nil)
+        self.listType = listType
+        self.editType = "edit"
+        self.uuid = uuid
+    }
 
     init(listType: String, editType: String) {
         super.init(nibName: nil, bundle: nil)
         self.listType = listType
         self.editType = editType
+        self.uuid = LearnalistModel.getUUID()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -18,11 +27,15 @@ class AddEditNavigationController: UINavigationController, UINavigationControlle
         super.viewDidLoad()
         self.edgesForExtendedLayout = []
         self.delegate = self
-
+        let model = UIApplication.getModel()
 
         if listType == "v1" {
+            let aList = (self.editType == "edit") ? model.getListByUuid(self.uuid) : AlistV1.NewList(self.uuid)
+            if aList == nil {
+                print("Something sad happened")
+            }
             let vc = V1EditListViewController(
-                aList: AlistV1.NewList(LearnalistModel.getUUID())
+                aList: aList as! AlistV1
             )
             self.setViewControllers([vc], animated: false)
         } else if listType == "v2" {

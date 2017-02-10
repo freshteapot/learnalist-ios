@@ -6,6 +6,7 @@ class MyListView: UIView, UITableViewDataSource, UITableViewDelegate {
     var tableView: UITableView!
     var selectedIndexPath: IndexPath?
     var items = [AlistSummary]()
+    let onTapOnTableRow = Signal<(uuid:String, listType:String)>()
 
     override init (frame : CGRect) {
         super.init(frame : frame)
@@ -48,9 +49,9 @@ class MyListView: UIView, UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
-        print("do: Goto list view.")
         selectedIndexPath = indexPath
-        tableView.deselectRow(at: indexPath as IndexPath, animated: false)
+        // tableView.deselectRow(at: indexPath as IndexPath, animated: false)
+        self.onTapOnTableRow.fire((uuid: items[indexPath.row].uuid, items[indexPath.row].listType))
     }
 
     func setItems(items: [AlistSummary]) {

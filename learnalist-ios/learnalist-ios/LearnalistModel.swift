@@ -155,6 +155,12 @@ class LearnalistModel {
 
     // Delete all lists for the logged in user.
     func deleteAllLists() {
+        do {
+            try self.db.execute("DELETE FROM alist_kv;")
+        } catch {
+
+        }
+
         let api = LearnalistApi(settings: self.getSettings())
 
         api.onResponse.subscribe(on: self) { response in
@@ -168,6 +174,7 @@ class LearnalistModel {
                         //@todo Remove from the db
                     }
                 }
+
             }
         }
         api.getMyLists()
@@ -205,6 +212,21 @@ class LearnalistModel {
         return items
     }
 
+    func getListByUuid(_ uuid:String) -> Any {
+        var aList:Any!
+        do {
+            // This has no context of lists that are not mine.
+            let stmt = try db.prepare("SELECT body FROM alist_kv WHERE uuid=?")
+            let jsonString = try stmt.scalar(uuid) as! String
+
+            aList = AlistV1(json: JSONParseToDictionary(text: jsonString)!)
+
+        } catch {
+            aList = nil
+        }
+        return aList
+    }
+
     // Might need to think this thru a little
     func saveList(_ aList: AlistV1) {
         self.saveList(uuid: aList.uuid, info: aList.info, body: JSONStringify(aList.toJSON()!, pretty:false))
@@ -214,7 +236,7 @@ class LearnalistModel {
         self.saveList(uuid: aList.uuid, info: aList.info, body: JSONStringify(aList.toJSON()!, pretty:false))
     }
 
-
+    // I wonder if I should pass in SwiftyJSON.JSON	so I can maniuplate the data
     private func saveList(uuid: String, info: AlistInfo, body: String) {
         let api = LearnalistApi(settings: getSettings())
 
@@ -227,10 +249,12 @@ class LearnalistModel {
                 if response.response?.statusCode == 200 {
                     // Update the local database with the uuid from the server.
                     if let jsonObject = response.result.value {
-                        let json = JSON(jsonObject)
+                        var json = JSON(jsonObject)
                         let uuid = json["uuid"].string!
-                        let from = json["info"]["from"].string
+                        let from = json["info"]["from"].string!
                         let listType = json["info"]["type"].string!
+                        // Now that we have the real uuid from the server, we can remove the one in from.
+                        json["info"].dictionaryObject?.removeValue(forKey: "from")
                         self.updateList(uuid:uuid, from:from, listType:listType, body:json.rawString(options:JSONSerialization.WritingOptions())!)
                     }
                 }
