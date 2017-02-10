@@ -27,9 +27,10 @@ class EditListInfoViewController: UIViewController {
         view.addSubview(editView)
 
         editView.snp.makeConstraints{(make) -> Void in
-            make.top.left.equalTo(view).offset(20)
+            make.top.equalTo(view).offset(20)
+            make.left.equalTo(view).offset(20)
             make.right.equalTo(view).offset(-20)
-            make.height.equalTo(view.snp.height).multipliedBy(0.5)
+            make.height.equalTo(view.snp.height)
         }
         editView.onTap.subscribe(on: self, callback: self.onEditSave)
     }

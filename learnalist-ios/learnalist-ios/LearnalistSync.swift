@@ -6,6 +6,7 @@ class LearnalistSync {
 
     func startTimer() {
         let queue = DispatchQueue(label: "net.learnalist.sync.list.timer")
+        stopTimer()
         timer = DispatchSource.makeTimerSource(queue: queue)
 
         // Every 5 minutes we try

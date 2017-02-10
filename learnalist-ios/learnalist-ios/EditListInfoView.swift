@@ -29,10 +29,10 @@ class EditListInfoView : UIView {
         addSubview(titleField)
 
         button.snp.makeConstraints{(make) -> Void in
-            make.height.equalTo(self.snp.height).multipliedBy(0.2)
-            make.top.equalTo(self).offset(10)
-            make.left.equalTo(self).offset(20)
-            make.right.equalTo(self).offset(-20)
+            make.height.equalTo(self.snp.height).multipliedBy(0.1)
+            make.top.equalTo(self)
+            make.left.equalTo(self)
+            make.right.equalTo(self)
         }
 
         button.onTouchDown.subscribe(on: self) {
@@ -41,9 +41,9 @@ class EditListInfoView : UIView {
 
         titleField.snp.makeConstraints{(make) -> Void in
             make.top.equalTo(button.snp.bottom).offset(30)
-            make.height.equalTo(self.snp.height).multipliedBy(0.3)
-            make.left.equalTo(self).offset(20)
-            make.right.equalTo(self).offset(-20)
+            make.height.equalTo(self.snp.height).multipliedBy(0.2)
+            make.left.equalTo(self)
+            make.right.equalTo(self)
         }
 
         titleField.onEditingDidEndOnExit.subscribe(on: self) {

@@ -79,7 +79,12 @@ class V1EditListViewController: UIViewController {
     }
 
     func onRowTap(index: Int) {
-        let vc = V1AddEditListItemViewController(index: index, rowData: self.aList.data[index])
+        var vc:V1AddEditListItemViewController!
+        if index == -1 {
+            vc = V1AddEditListItemViewController()
+        } else {
+            vc = V1AddEditListItemViewController(index: index, rowData: self.aList.data[index])
+        }
         vc.onSave.subscribe(on: self, callback: onSaveItem)
         vc.onDelete.subscribe(on: self, callback: onDeleteItem)
         self.navigationController!.pushViewController(vc, animated: false)

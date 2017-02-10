@@ -57,7 +57,8 @@ class V1EditListViewItem : UIView {
 
         saveButton.snp.makeConstraints{(make) -> Void in
             make.height.equalTo(self.snp.height).multipliedBy(0.1)
-            make.top.equalTo(self).offset(10)
+            // We set the offset to match the other controllers here as we want to capture the 20 at the top.
+            make.top.equalTo(self).offset(20)
             make.left.equalTo(self).offset(20)
             make.right.equalTo(self).offset(-20)
         }

@@ -15,24 +15,13 @@ class V1EditListView: UIView, UITableViewDataSource, UITableViewDelegate {
         self.aList = aList
         self.triggerListUpdate.subscribe(on: self, callback: self.updateList)
 
-        let button = UIButton()
-        button.backgroundColor = UIColor.gray
-        button.setTitle("Save List", for: UIControlState.normal)
-
-        addSubview(button)
-        button.snp.makeConstraints{(make) -> Void in
-            make.height.equalTo(self.snp.height).multipliedBy(0.05)
-            make.top.left.equalTo(self)
-            make.right.equalTo(self)
-        }
-
         titleButton = UIButton()
         titleButton.backgroundColor = UIColor.gray
         titleButton.contentHorizontalAlignment = .center
-
         addSubview(titleButton)
+
         titleButton.snp.makeConstraints{(make) -> Void in
-            make.top.equalTo(button.snp.bottom).offset(5)
+            make.top.equalTo(self)
             make.height.equalTo(self.snp.height).multipliedBy(0.1)
             make.left.equalTo(self)
             make.right.equalTo(self)
@@ -60,6 +49,10 @@ class V1EditListView: UIView, UITableViewDataSource, UITableViewDelegate {
         }
 
         triggerListUpdate.fire(self.aList)
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(tableTapped))
+        self.tableView.backgroundView = UIView()
+        self.tableView.backgroundView?.addGestureRecognizer(tap)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -91,5 +84,10 @@ class V1EditListView: UIView, UITableViewDataSource, UITableViewDelegate {
         let text = self.aList.info.title
         titleButton.setTitle(text, for: UIControlState.normal)
         setItems(items: self.aList.data)
+    }
+
+    func tableTapped() {
+        print("I really like this")
+        self.onRowTap.fire(-1)
     }
 }
