@@ -28,7 +28,7 @@ class V1EditListView: UIView, UITableViewDataSource, UITableViewDelegate {
 
         titleButton = UIButton()
         titleButton.backgroundColor = UIColor.gray
-        titleButton.contentHorizontalAlignment = .left
+        titleButton.contentHorizontalAlignment = .center
 
         addSubview(titleButton)
         titleButton.snp.makeConstraints{(make) -> Void in
@@ -88,7 +88,7 @@ class V1EditListView: UIView, UITableViewDataSource, UITableViewDelegate {
 
     func updateList(data: AlistV1) {
         self.aList = data
-        let text = "title: \(self.aList.info.title)"
+        let text = self.aList.info.title
         titleButton.setTitle(text, for: UIControlState.normal)
         setItems(items: self.aList.data)
     }
