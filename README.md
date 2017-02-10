@@ -41,3 +41,9 @@ For more uptodate, checkout the Cartfile
 - [SwiftyJSON](https://github.com/SwiftyJSON/SwiftyJSON)
 - [Signals](https://github.com/artman/Signals/)
 - Dollar (not yet)
+
+
+
+# Notes and urls I find that are helping me understand, grow my knowledge.
+
+- http://samwize.com/2016/06/08/complete-guide-to-implementing-wkwebview/
