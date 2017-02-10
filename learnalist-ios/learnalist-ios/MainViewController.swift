@@ -56,10 +56,14 @@ class MainViewController: UITabBarController, UITabBarControllerDelegate {
         // Create Tab two
         let tabLastList = TabLastListViewController()
         let tabLastListBarItem = UITabBarItem(title: "Last List", image: UIImage(named: "defaultImage2.png"), selectedImage: UIImage(named: "selectedImage2.png"))
-
         tabLastList.tabBarItem = tabLastListBarItem
 
-        self.viewControllers = [tabMyList, tabLastList, tabPickForAddEditList]
+        // Create Tab two
+        let tabSurf = TabSurfViewController()
+        let tabSurfListBarItem = UITabBarItem(title: "Surf", image: UIImage(named: "defaultImage2.png"), selectedImage: UIImage(named: "selectedImage2.png"))
+        tabSurf.tabBarItem = tabSurfListBarItem
+
+        self.viewControllers = [tabMyList, tabSurf, tabPickForAddEditList]
     }
 
     // UITabBarControllerDelegate method
