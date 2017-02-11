@@ -238,7 +238,7 @@ class LearnalistModel {
                         let from = json["info"]["from"].string!
                         let listType = json["info"]["type"].string!
                         // Now that we have the real uuid from the server, we can remove the one in from.
-                        json["info"].dictionaryObject?.removeValue(forKey: "from")
+                        json["info"].dictionaryObject!.removeValue(forKey: "from")
                         self.updateList(uuid:uuid, from:from, listType:listType, body:json.rawString(options:JSONSerialization.WritingOptions())!)
                     }
                 }

@@ -27,7 +27,7 @@ class SurfViewController: UIViewController, WKUIDelegate, WKNavigationDelegate {
         webView.load(myRequest)
     }
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        print(navigationAction.request.url)
+        print(navigationAction.request.url!)
         decisionHandler(.allow)
         return
     }

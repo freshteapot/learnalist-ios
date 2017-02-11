@@ -13,7 +13,7 @@ class LearnalistSync {
         timer!.scheduleRepeating(deadline: .now(), interval: .seconds(60*5))
         timer!.setEventHandler { [weak self] in
             // Ping learnalist to get a hash to know if we should update the sync.
-            print("Trying to check sync.")
+            self?.sync()
         }
         timer!.resume()
     }
@@ -21,6 +21,10 @@ class LearnalistSync {
     func stopTimer() {
         timer?.cancel()
         timer = nil
+    }
+
+    func sync() {
+        print("Trying to check sync.")
     }
 
     deinit {
