@@ -42,9 +42,8 @@ class LearnalistModel {
             print("error: \(error).")
         }
 
-        if !dbExists {
-            setup()
-        }
+
+        setup()
 
         // dbExists
         return db
@@ -89,40 +88,10 @@ class LearnalistModel {
             sql: "create table alist_kv (uuid CHARACTER(36)  not null primary key, list_type CHARACTER(3), body text, user_uuid CHARACTER(36));"
         )
 
-        func setupSettingsTable() {
-            let query = "create table settings (username CHARACTER(36) not null primary key, data text);"
-            do {
-                try db.execute(query)
-
-                var stmt = try db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'")
-                var schema = try stmt.scalar() as! String
-                print(schema)
-
-                stmt = try db.prepare("SELECT sql FROM sqlite_master WHERE name='settings';")
-                schema = try stmt.scalar() as! String
-                print(schema)
-            } catch{
-                // print("error: \(error).")
-            }
-        }
-
-        func setupListTable() {
-
-            let query = "create table alist_kv (uuid CHARACTER(36)  not null primary key, list_type CHARACTER(3), body text, user_uuid CHARACTER(36));"
-            do {
-                try db.execute(query)
-
-                var stmt = try db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'")
-                var schema = try stmt.scalar() as! String
-                print(schema)
-
-                stmt = try db.prepare("SELECT sql FROM sqlite_master WHERE name='alist_kv';")
-                schema = try stmt.scalar() as! String
-                print(schema)
-            } catch {
-                // print("error: \(error).")
-            }
-        }
+        setupTable(
+            name: "alist_kv_server_to_local",
+            sql: "create table alist_kv_server_to_local (uuid CHARACTER(36)  not null primary key, from_uuid CHARACTER(36));"
+        )
     }
 
 
@@ -212,14 +181,29 @@ class LearnalistModel {
         return items
     }
 
+    func getListByFrom(_ uuid:String) -> Any {
+        var aList:Any!
+        do {
+            let stmt = try db.prepare("SELECT uuid FROM alist_kv_server_to_local WHERE from_uuid=?")
+            let from = try stmt.scalar(uuid) as! String
+            aList = getListByUuid(from)
+        } catch {
+            aList = nil
+        }
+        return aList
+    }
+
     func getListByUuid(_ uuid:String) -> Any {
         var aList:Any!
         do {
             // This has no context of lists that are not mine.
             let stmt = try db.prepare("SELECT body FROM alist_kv WHERE uuid=?")
-            let jsonString = try stmt.scalar(uuid) as! String
+            let jsonString = try stmt.scalar(uuid) as? String
+            if jsonString == nil {
+                return getListByFrom(uuid)
+            }
 
-            aList = AlistV1(json: JSONParseToDictionary(text: jsonString)!)
+            aList = AlistV1(json: JSONParseToDictionary(text: jsonString!)!)
 
         } catch {
             aList = nil
@@ -280,6 +264,9 @@ class LearnalistModel {
             do {
                 let stmt = try db.prepare("UPDATE alist_kv SET uuid=?, list_type=?, body=? WHERE uuid=?")
                 try stmt.run(uuid, listType, body, from)
+
+                let stmtServerToLocal = try db.prepare("INSERT INTO alist_kv_server_to_local(uuid, from_uuid) VALUES(?,?)")
+                try stmtServerToLocal.run(uuid, from)
             } catch {
                 print("Failed to save: \(error)")
                 if case SQLite.Result.error(let message, let code, _) = error {
@@ -326,6 +313,43 @@ class LearnalistModel {
         } else {
             print("@todo insert listType \(listType)")
         }
+    }
+
+    func clearAlistServerToLocalMapping() {
+        do {
+            try self.db.execute("DELETE FROM alist_kv_server_to_local;")
+        } catch {
+
+        }
+    }
+
+    func resetBasedOnServer() {
+        do {
+            try self.db.execute("DELETE FROM alist_kv;")
+        } catch {
+            return
+        }
+
+        let api = LearnalistApi(settings: self.getSettings())
+        api.onResponse.subscribe(on: self) { response in
+            if response.response?.statusCode == 200 {
+                if let jsonObject = response.result.value {
+                    let json = JSON(jsonObject)
+                    for (_, aList):(String, JSON) in json {
+                        // Check to see if it is in the database?
+                        if aList["info"]["type"].string! == "v1" {
+                            if let test = AlistV1(json: JSONParseToDictionary(text: aList.rawString()!)!) {
+                                self.insertAlist(uuid: test.uuid, listType: test.info.listType, body:aList.rawString()!)
+                            }
+                        } else if aList["info"]["type"].string! == "v2" {
+                            if let test = AlistV2(json: JSONParseToDictionary(text: aList.rawString()!)!) {
+                                self.insertAlist(uuid: test.uuid, listType: test.info.listType, body:aList.rawString()!)                            }
+                        }
+                    }
+                }
+            }
+        }
+        api.getMyLists()
     }
 }
 

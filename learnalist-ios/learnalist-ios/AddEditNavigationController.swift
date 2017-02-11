@@ -29,11 +29,13 @@ class AddEditNavigationController: UINavigationController, UINavigationControlle
         self.delegate = self
         let model = UIApplication.getModel()
 
+        // There is a chance that the uuid is not uuid and is from_uuid. If a bug appears, it might be linked to this.
         if listType == "v1" {
             let aList = (self.editType == "edit") ? model.getListByUuid(self.uuid) : AlistV1.NewList(self.uuid)
             if aList == nil {
                 print("Something sad happened")
             }
+
             let vc = V1EditListViewController(
                 aList: aList as! AlistV1
             )

@@ -1,10 +1,12 @@
 import UIKit
+import Signals
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     var sync: LearnalistSync!
+    let onStartUpFinished = Signal<Bool>()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 
@@ -16,11 +18,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             window = UIWindow(frame: UIScreen.main.bounds)
             window?.backgroundColor = UIColor.black
         firstRun()
-
         let model = LearnalistModel()
-        let vc = MainViewController(model:model)
-            window?.rootViewController = vc
-            window?.makeKeyAndVisible()
+
+        // Maybe have an actual splash screen.
+        self.onStartUpFinished.subscribe(on: self) {_ in
+            let vc = MainViewController(model:model)
+            self.window?.rootViewController = vc
+            self.window?.makeKeyAndVisible()
+        }
+
+        onStartUp(model)
         return true
     }
 
@@ -58,6 +65,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         //userDefaults.set(dict, forKey: "defaults")                // without this code doesn't work
         userDefaults.register(defaults: dict as! [String : Any])
+    }
+
+    func onStartUp(_ model: LearnalistModel) {
+        // On startup, it is safe to clear mappings from uuid to from_uuid, which is only used to avoid
+        // having to update views after "update" from posting a list for the first time happens.
+        model.clearAlistServerToLocalMapping()
+
+        self.onStartUpFinished.fire(true)
+        // model.resetBasedOnServer()
     }
 }
 
