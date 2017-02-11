@@ -103,6 +103,7 @@ class AddEditNavigationController: UINavigationController, UINavigationControlle
         let vc = EditListInfoViewController(info: info)
         if listType == "v1" {
             vc.onSave.subscribe(on: self, callback: (self.topViewController as! V1EditListViewController).onSaveInfo)
+            vc.onDelete.subscribe(on: self, callback: (self.topViewController as! V1EditListViewController).onDeleteList)
         } else if listType == "v2" {
             // vc.onSave.subscribe(on: self, callback: (self.topViewController as! V2EditListViewController).onSaveInfo)
         } else {

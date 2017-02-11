@@ -351,6 +351,20 @@ class LearnalistModel {
         }
         api.getMyLists()
     }
+
+    func deleteList(_ uuid: String) {
+        // This all goes very much to shit, when internet is down.
+        // Really, we should put a soft delete, wait for the 200 and then do a proper delete.
+        do {
+            let stmt = try db.prepare("DELETE FROM alist_kv WHERE uuid=?;")
+            try stmt.run(uuid)
+        } catch {
+            return
+        }
+
+        let api = LearnalistApi(settings: self.getSettings())
+        api.deleteList(uuid)
+    }
 }
 
 

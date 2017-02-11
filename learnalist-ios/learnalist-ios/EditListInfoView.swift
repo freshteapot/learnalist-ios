@@ -5,8 +5,9 @@ class EditListInfoView : UIView {
     var info:AlistInfo!
     let onTap = Signal<AlistInfo>()
     let triggerInfoUpdate = Signal<AlistInfo>()
+    let onDelete = Signal<Bool>()
 
-    private var button:UIButton = UIButton()
+    private var saveButton:UIButton = UIButton()
     private var titleField:UITextField = UITextField()
 
     private let buttonSaveText = "Click to update list"
@@ -17,10 +18,9 @@ class EditListInfoView : UIView {
         self.info = info
         self.triggerInfoUpdate.subscribe(on: self, callback: self.updateInfo)
 
-        button = UIButton()
-        button.backgroundColor = UIColor.gray
-        button.setTitle(buttonEditText, for: UIControlState.normal)
-        addSubview(button)
+        saveButton.backgroundColor = UIColor.gray
+        saveButton.setTitle(buttonEditText, for: UIControlState.normal)
+        addSubview(saveButton)
 
 
         titleField.text = self.info.title
@@ -28,22 +28,22 @@ class EditListInfoView : UIView {
         titleField.textAlignment = NSTextAlignment.center
         addSubview(titleField)
 
-        button.snp.makeConstraints{(make) -> Void in
+        saveButton.snp.makeConstraints{(make) -> Void in
             make.height.equalTo(self.snp.height).multipliedBy(0.1)
-            make.top.equalTo(self)
-            make.left.equalTo(self)
-            make.right.equalTo(self)
+            make.top.equalTo(self).offset(20)
+            make.left.equalTo(self).offset(20)
+            make.right.equalTo(self).offset(-20)
         }
 
-        button.onTouchDown.subscribe(on: self) {
+        saveButton.onTouchDown.subscribe(on: self) {
             self.onTap.fire(self.info)
         }
 
         titleField.snp.makeConstraints{(make) -> Void in
-            make.top.equalTo(button.snp.bottom).offset(30)
+            make.top.equalTo(saveButton.snp.bottom).offset(30)
             make.height.equalTo(self.snp.height).multipliedBy(0.2)
-            make.left.equalTo(self)
-            make.right.equalTo(self)
+            make.left.equalTo(self).offset(20)
+            make.right.equalTo(self).offset(-20)
         }
 
         titleField.onEditingDidEndOnExit.subscribe(on: self) {
@@ -53,6 +53,22 @@ class EditListInfoView : UIView {
 
         titleField.onTouchUpOutside.subscribe(on: self) {
             self.saveTitle(item: self.titleField.text!)
+        }
+
+        let deleteButton = UIButton()
+        deleteButton.backgroundColor = UIColor.red
+        deleteButton.setTitle("Delete List", for: UIControlState.normal)
+        addSubview(deleteButton)
+
+        deleteButton.snp.makeConstraints{(make) -> Void in
+            make.height.equalTo(self.snp.height).multipliedBy(0.1)
+            make.bottom.equalTo(0).offset(-20)
+            make.left.equalTo(self).offset(20)
+            make.right.equalTo(self).offset(-20)
+        }
+
+        deleteButton.onTouchDown.subscribe(on: self) {
+            self.onDelete.fire(true)
         }
     }
 
@@ -67,12 +83,12 @@ class EditListInfoView : UIView {
     func saveTitle(item: String) {
         let cleaned = item.trimmingCharacters(in: .whitespacesAndNewlines)
         if cleaned == "" {
-            button.setTitle(buttonEditText, for: UIControlState.normal)
+            saveButton.setTitle(buttonEditText, for: UIControlState.normal)
             return
         }
         self.info.title = cleaned
         titleField.text = cleaned
-        button.setTitle(buttonSaveText, for: UIControlState.normal)
+        saveButton.setTitle(buttonSaveText, for: UIControlState.normal)
     }
 
     func updateInfo(data: AlistInfo) {

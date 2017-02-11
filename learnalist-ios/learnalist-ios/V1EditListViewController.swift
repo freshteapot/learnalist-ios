@@ -71,6 +71,11 @@ class V1EditListViewController: UIViewController {
         self.navigationController!.popViewController(animated: false)
     }
 
+    func onDeleteList(data: Bool) {
+        UIApplication.getModel().deleteList(self.aList.uuid)
+        self.navigationController!.dismiss(animated: false, completion: nil)
+    }
+
     func onTitleAction(data: String) {
         if data == "open" {
             (self.navigationController as! AddEditNavigationController).toInfo(info: self.aList.info)
