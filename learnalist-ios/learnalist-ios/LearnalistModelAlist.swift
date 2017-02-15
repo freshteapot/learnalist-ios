@@ -123,12 +123,45 @@ struct AlistV1: Decodable {
     }
 }
 
+struct AlistV2Row: Decodable {
+    var from: String
+    var to: String
+
+    init(from: String, to: String) {
+        self.from = from
+        self.to = to
+    }
+    init?(json: JSON) {
+        self.from = ("from" <~~ json)!
+        self.to = ("to" <~~ json)!
+    }
+    func toJSON() -> JSON? {
+        return jsonify([
+            "from" ~~> self.from,
+            "to" ~~> self.to,
+            ])
+    }
+}
 
 struct AlistV2: Decodable {
     var uuid: String
     var info: AlistInfo
-    var data: [String: String]
-    init(uuid: String, info: AlistInfo, data: [String: String]) {
+    var data: [AlistV2Row]
+
+    static func NewList(_ uuid: String) -> AlistV2 {
+        // By default, we set both uuid and info.from to be the same uuid.
+        return AlistV2(
+            uuid: uuid,
+            info: AlistInfo(
+                title:"I am a title",
+                listType:"v2",
+                from: uuid
+            ),
+            data: [AlistV2Row]()
+        )
+    }
+
+    init(uuid: String, info: AlistInfo, data: [AlistV2Row]) {
         self.uuid = uuid
         self.info = info
         self.data = data
@@ -143,10 +176,15 @@ struct AlistV2: Decodable {
     }
 
     func toJSON() -> JSON? {
+        // Hack to make sure we call each objects toJSON() method.
+        var jsonData = [JSON]()
+        for (obj) in self.data {
+            jsonData.append(obj.toJSON()!)
+        }
         return jsonify([
             "uuid" ~~> self.uuid,
             "info" ~~> self.info.toJSON(),
-            "data" ~~> self.data
+            "data" ~~> jsonData
             ])
     }
 }
@@ -166,7 +204,7 @@ func testing() {
 
     if var test = AlistV2(json: JSONParseToDictionary(text: testV2)!) {
         print(test)
-        test.data["chris"] = "tired"
+        test.data.append(AlistV2Row(from:"hello", to:"HI"))
         print(JSONStringify(test.toJSON()!, pretty:true))
     }
 }

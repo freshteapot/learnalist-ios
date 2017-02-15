@@ -202,8 +202,19 @@ class LearnalistModel {
             if jsonString == nil {
                 return getListByFrom(uuid)
             }
+            // This is pretty horrible, how we get the type :P
+            if let dataFromString = jsonString?.data(using: .utf8, allowLossyConversion: false) {
+                let json = JSON(data: dataFromString)
+                let listType = json["info"]["type"].string!
 
-            aList = AlistV1(json: JSONParseToDictionary(text: jsonString!)!)
+                if listType == "v1" {
+                    aList = AlistV1(json: JSONParseToDictionary(text: jsonString!)!)
+                } else if listType == "v2" {
+                    aList = AlistV2(json: JSONParseToDictionary(text: jsonString!)!)
+                } else {
+                    print("@todo getListByUuid")
+                }
+            }
 
         } catch {
             aList = nil
@@ -295,7 +306,8 @@ class LearnalistModel {
     }
 
     func insertAlist(uuid: String, listType: String, body: String) {
-        if listType == "v1" {
+        // Next time, make this a switch
+        if listType == "v1" || listType == "v2" {
             do {
                 print("Saving to database")
                 let stmt = try db.prepare("INSERT INTO alist_kv(uuid, list_type, body) values(?,?,?)")
