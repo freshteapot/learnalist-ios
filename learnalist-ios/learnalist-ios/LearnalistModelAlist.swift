@@ -190,6 +190,101 @@ struct AlistV2: Decodable {
 }
 
 
+struct AlistV3Data: Decodable {
+    var image: String
+    var rows: [AlistV3Row]
+
+    init(image: String, rows: [AlistV3Row]) {
+        self.image = image
+        self.rows = rows
+    }
+    init?(json: JSON) {
+        self.image = ("image" <~~ json)!
+        self.rows = ("rows" <~~ json)!
+    }
+    func toJSON() -> JSON? {
+        var jsonData = [JSON]()
+        for (obj) in self.rows {
+            jsonData.append(obj.toJSON()!)
+        }
+        return jsonify([
+            "image" ~~> self.image,
+            "rows" ~~> jsonData,
+            ])
+    }
+}
+
+struct AlistV3Row: Decodable {
+    var x: Int
+    var y: Int
+    var content: String
+
+    init(x: Int, y: Int, content: String) {
+        self.x = x
+        self.y = y
+        self.content = content
+    }
+
+    init?(json: JSON) {
+        self.x = ("x" <~~ json)!
+        self.y = ("y" <~~ json)!
+        self.content = ("content" <~~ json)!
+    }
+
+    func toJSON() -> JSON? {
+        return jsonify([
+            "x" ~~> self.x,
+            "y" ~~> self.y,
+            "content" ~~> self.content,
+            ])
+    }
+}
+
+struct AlistV3: Decodable {
+    var uuid: String
+    var info: AlistInfo
+    var data: AlistV3Data
+
+    static func NewList(_ uuid: String) -> AlistV3 {
+        // By default, we set both uuid and info.from to be the same uuid.
+        return AlistV3(
+            uuid: uuid,
+            info: AlistInfo(
+                title:"I am a title",
+                listType:"v3",
+                from: uuid
+            ),
+            data: AlistV3Data(
+                image: "",
+                rows: [AlistV3Row]()
+            )
+        )
+    }
+
+    init(uuid: String, info: AlistInfo, data: AlistV3Data) {
+        self.uuid = uuid
+        self.info = info
+        self.data = data
+    }
+
+    // MARK: - Deserialization
+
+    init?(json: JSON) {
+        self.uuid = ("uuid" <~~ json)!
+        self.info = ("info" <~~ json)!
+        self.data = ("data" <~~ json)!
+    }
+
+    func toJSON() -> JSON? {
+        return jsonify([
+            "uuid" ~~> self.uuid,
+            "info" ~~> self.info.toJSON(),
+            "data" ~~> self.data.toJSON()
+            ])
+    }
+}
+
+
 func testing() {
 
     let testV1 = "{\"data\":[\"monday\",\"tuesday\",\"wednesday\",\"thursday\",\"friday\",\"saturday\",\"sunday\"],\"info\":{\"title\":\"Days of the Week\",\"type\":\"v1\"},\"uuid\":\"392d03ca-bb60-53a6-adb8-7565fad37da5\"}"
