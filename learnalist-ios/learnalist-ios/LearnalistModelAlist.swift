@@ -123,12 +123,145 @@ struct AlistV1: Decodable {
     }
 }
 
+struct AlistV2Row: Decodable {
+    var from: String
+    var to: String
+
+    init(from: String, to: String) {
+        self.from = from
+        self.to = to
+    }
+    init?(json: JSON) {
+        self.from = ("from" <~~ json)!
+        self.to = ("to" <~~ json)!
+    }
+    func toJSON() -> JSON? {
+        return jsonify([
+            "from" ~~> self.from,
+            "to" ~~> self.to,
+            ])
+    }
+}
 
 struct AlistV2: Decodable {
     var uuid: String
     var info: AlistInfo
-    var data: [String: String]
-    init(uuid: String, info: AlistInfo, data: [String: String]) {
+    var data: [AlistV2Row]
+
+    static func NewList(_ uuid: String) -> AlistV2 {
+        // By default, we set both uuid and info.from to be the same uuid.
+        return AlistV2(
+            uuid: uuid,
+            info: AlistInfo(
+                title:"I am a title",
+                listType:"v2",
+                from: uuid
+            ),
+            data: [AlistV2Row]()
+        )
+    }
+
+    init(uuid: String, info: AlistInfo, data: [AlistV2Row]) {
+        self.uuid = uuid
+        self.info = info
+        self.data = data
+    }
+
+    // MARK: - Deserialization
+
+    init?(json: JSON) {
+        self.uuid = ("uuid" <~~ json)!
+        self.info = ("info" <~~ json)!
+        self.data = ("data" <~~ json)!
+    }
+
+    func toJSON() -> JSON? {
+        // Hack to make sure we call each objects toJSON() method.
+        var jsonData = [JSON]()
+        for (obj) in self.data {
+            jsonData.append(obj.toJSON()!)
+        }
+        return jsonify([
+            "uuid" ~~> self.uuid,
+            "info" ~~> self.info.toJSON(),
+            "data" ~~> jsonData
+            ])
+    }
+}
+
+
+struct AlistV3Data: Decodable {
+    var image: String
+    var rows: [AlistV3Row]
+
+    init(image: String, rows: [AlistV3Row]) {
+        self.image = image
+        self.rows = rows
+    }
+    init?(json: JSON) {
+        self.image = ("image" <~~ json)!
+        self.rows = ("rows" <~~ json)!
+    }
+    func toJSON() -> JSON? {
+        var jsonData = [JSON]()
+        for (obj) in self.rows {
+            jsonData.append(obj.toJSON()!)
+        }
+        return jsonify([
+            "image" ~~> self.image,
+            "rows" ~~> jsonData,
+            ])
+    }
+}
+
+struct AlistV3Row: Decodable {
+    var x: Int
+    var y: Int
+    var content: String
+
+    init(x: Int, y: Int, content: String) {
+        self.x = x
+        self.y = y
+        self.content = content
+    }
+
+    init?(json: JSON) {
+        self.x = ("x" <~~ json)!
+        self.y = ("y" <~~ json)!
+        self.content = ("content" <~~ json)!
+    }
+
+    func toJSON() -> JSON? {
+        return jsonify([
+            "x" ~~> self.x,
+            "y" ~~> self.y,
+            "content" ~~> self.content,
+            ])
+    }
+}
+
+struct AlistV3: Decodable {
+    var uuid: String
+    var info: AlistInfo
+    var data: AlistV3Data
+
+    static func NewList(_ uuid: String) -> AlistV3 {
+        // By default, we set both uuid and info.from to be the same uuid.
+        return AlistV3(
+            uuid: uuid,
+            info: AlistInfo(
+                title:"I am a title",
+                listType:"v3",
+                from: uuid
+            ),
+            data: AlistV3Data(
+                image: "",
+                rows: [AlistV3Row]()
+            )
+        )
+    }
+
+    init(uuid: String, info: AlistInfo, data: AlistV3Data) {
         self.uuid = uuid
         self.info = info
         self.data = data
@@ -146,7 +279,7 @@ struct AlistV2: Decodable {
         return jsonify([
             "uuid" ~~> self.uuid,
             "info" ~~> self.info.toJSON(),
-            "data" ~~> self.data
+            "data" ~~> self.data.toJSON()
             ])
     }
 }
@@ -166,7 +299,7 @@ func testing() {
 
     if var test = AlistV2(json: JSONParseToDictionary(text: testV2)!) {
         print(test)
-        test.data["chris"] = "tired"
+        test.data.append(AlistV2Row(from:"hello", to:"HI"))
         print(JSONStringify(test.toJSON()!, pretty:true))
     }
 }

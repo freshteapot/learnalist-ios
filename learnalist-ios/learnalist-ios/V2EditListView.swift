@@ -1,26 +1,95 @@
-//  Created by Chris Williams on 31/01/2017.
-//  Copyright © 2017 freshteapot. All rights reserved.
-//
-
 import UIKit
+import Signals
 
-class V2EditListView: UIView {
-    override init (frame : CGRect) {
+class V2EditListView: UIView, UITableViewDataSource, UITableViewDelegate {
+    let onTitleAction = Signal<String>()
+    let triggerListUpdate = Signal<AlistV2>()
+    let onRowTap = Signal<Int>()
+
+    var aList:AlistV2!
+    var tableView: UITableView!
+    var titleButton: UIButton!
+
+    init(frame: CGRect, aList: AlistV2) {
         super.init(frame : frame)
+        self.aList = aList
+        self.triggerListUpdate.subscribe(on: self, callback: self.updateList)
 
-        let button = UIButton()
-        button.backgroundColor = UIColor.gray
-        button.setTitle("List View for v2", for: UIControlState.normal)
+        titleButton = UIButton()
+        titleButton.backgroundColor = UIColor.gray
+        titleButton.contentHorizontalAlignment = .center
+        addSubview(titleButton)
 
-        addSubview(button)
-        button.snp.makeConstraints{(make) -> Void in
-            make.height.equalTo(self.snp.height).multipliedBy(0.2)
-            make.top.left.equalTo(self).offset(20)
-            make.right.equalTo(self).offset(-20)
+        titleButton.snp.makeConstraints{(make) -> Void in
+            make.top.equalTo(self)
+            make.height.equalTo(self.snp.height).multipliedBy(0.1)
+            make.left.equalTo(self)
+            make.right.equalTo(self)
         }
+
+        titleButton.onTouchDown.subscribe(on: self) {
+            self.onTitleAction.fire("open")
+        }
+
+        tableView = UITableView(frame: frame, style: .plain)
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.alwaysBounceVertical = false
+
+        tableView.rowHeight = UITableViewAutomaticDimension;
+        tableView.estimatedRowHeight = 44;
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "NameCell")
+        addSubview(tableView)
+
+        tableView.snp.makeConstraints{(make) -> Void in
+            make.top.equalTo(titleButton.snp.bottom).offset(10)
+            make.left.equalTo(self)
+            make.right.equalTo(self)
+            make.bottom.equalTo(self)
+        }
+
+        triggerListUpdate.fire(self.aList)
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(tableTapped))
+        self.tableView.backgroundView = UIView()
+        self.tableView.backgroundView?.addGestureRecognizer(tap)
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return self.aList.data.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "NameCell")! as UITableViewCell
+        // let listRow:[String: String] = self.aList.data[indexPath.row]
+        let aRow:AlistV2Row = self.aList.data[indexPath.row]
+        cell.textLabel?.text = aRow.from
+        return cell
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
+        tableView.deselectRow(at: indexPath as IndexPath, animated: false)
+        self.onRowTap.fire(indexPath.row)
+    }
+
+    func setItems(items: [AlistV2Row]) {
+        self.aList.data = items
+        tableView.reloadData()
+    }
+
+    func updateList(data: AlistV2) {
+        self.aList = data
+        let text = self.aList.info.title
+        titleButton.setTitle(text, for: UIControlState.normal)
+        setItems(items: self.aList.data)
+    }
+
+    func tableTapped() {
+        print("I really like this")
+        self.onRowTap.fire(-1)
     }
 }

@@ -38,7 +38,12 @@ class AddEditNavigationController: UINavigationController, UINavigationControlle
             )
             self.setViewControllers([vc], animated: false)
         } else if listType == "v2" {
-            let vc = V2AddEditListItemViewController()
+            let aList = (self.editType == "edit") ? model.getListByUuid(self.uuid) : AlistV2.NewList(self.uuid)
+
+            let vc = V2EditListViewController(
+                aList: aList as! AlistV2
+            )
+
             self.setViewControllers([vc], animated: false)
         } else {
             print("@Todo")
@@ -102,7 +107,8 @@ class AddEditNavigationController: UINavigationController, UINavigationControlle
             vc.onSave.subscribe(on: self, callback: (self.topViewController as! V1EditListViewController).onSaveInfo)
             vc.onDelete.subscribe(on: self, callback: (self.topViewController as! V1EditListViewController).onDeleteList)
         } else if listType == "v2" {
-            // vc.onSave.subscribe(on: self, callback: (self.topViewController as! V2EditListViewController).onSaveInfo)
+            vc.onSave.subscribe(on: self, callback: (self.topViewController as! V2EditListViewController).onSaveInfo)
+            vc.onDelete.subscribe(on: self, callback: (self.topViewController as! V2EditListViewController).onDeleteList)
         } else {
             print("@Todo")
         }
@@ -117,6 +123,7 @@ class AddEditNavigationController: UINavigationController, UINavigationControlle
             self.pushViewController(vc, animated: false)
         } else if listType == "v2" {
             let vc = V2AddEditListItemViewController()
+            vc.onSave.subscribe(on: self, callback: (self.topViewController as! V2EditListViewController).onSaveItem)
             self.pushViewController(vc, animated: false)
         } else {
             print("@Todo")
